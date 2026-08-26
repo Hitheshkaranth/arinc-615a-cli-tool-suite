@@ -46,6 +46,81 @@ setup scripts and documentation.
 
 ---
 
+## When to use ARINC 615A — and when not to
+
+ARINC 615A is a **data loading** standard. It exists to answer one question: *how
+does software get onto, or off, a box on an aircraft?* It is not a bus, not a
+messaging protocol, and not a way for avionics to talk to each other in flight.
+
+### Use ARINC 615A when
+
+| Situation | Why 615A |
+| --- | --- |
+| Loading software or configuration data onto an LRU over **Ethernet** | This is exactly what it was written for |
+| Reading **part numbers and versions** off a target to confirm configuration | The `Information` operation returns the target's `LCL` |
+| **Downloading** fault logs, recorded data or configuration from a target | Media-defined and operator-defined download |
+| Building a **portable data loader** (PDL) or a bench/maintenance tool | The host role is what this repository implements |
+| You need loads packaged in the standard, interchangeable format | 615A carries **ARINC 665** media sets |
+
+### Do not use ARINC 615A when
+
+| Situation | Use instead |
+| --- | --- |
+| Avionics need to exchange **operational data in flight** | ARINC 429, ARINC 664 (AFDX), or MIL-STD-1553 — 615A is ground/maintenance, not a runtime bus |
+| The target only has an **ARINC 429 data-load port**, not Ethernet | **ARINC 615** (no "A") — the older 429-based data loader. Different physical layer, different protocol, not interoperable |
+| You are **defining the software package**, not transferring it | **ARINC 665** — the media set and load format |
+| You need the **shared vocabulary and check-value functions** | **ARINC 649** — terminology and common functions for software distribution and loading |
+| You want to move an ordinary file between two computers | Plain TFTP, SFTP or SCP. 615A adds an aircraft-specific state machine you do not need |
+
+### How the ARINC standards in this project fit together
+
+```mermaid
+flowchart TB
+    A649["<b>ARINC 649</b><br/>terminology · check values<br/><i>shared vocabulary</i>"]
+    A665["<b>ARINC 665</b><br/>load and media set format<br/><i>WHAT is transferred</i>"]
+    A615A["<b>ARINC 615A</b><br/>data loading over Ethernet<br/><i>HOW it is transferred</i>"]
+    A615["<b>ARINC 615</b><br/>data loading over ARINC 429<br/><i>the older alternative</i>"]
+    TGT["Target hardware · LRU"]
+
+    A649 --> A665
+    A665 --> A615A
+    A665 --> A615
+    A615A -->|Ethernet · TFTP/UDP| TGT
+    A615 -.->|ARINC 429| TGT
+
+    classDef impl fill:#0B5CA8,stroke:#083F73,color:#fff
+    classDef other fill:#5A6472,stroke:#3D4551,color:#fff
+    classDef tgt fill:#1F7A3D,stroke:#145C2C,color:#fff
+    class A649,A665,A615A impl
+    class A615 other
+    class TGT tgt
+```
+
+**In one line:** ARINC 665 defines *what* a software load is, ARINC 615A defines
+*how* to move it over Ethernet, ARINC 649 supplies the shared terminology and
+check values, and ARINC 615 is the older 429-based route this tool does **not**
+implement.
+
+This repository implements the three in blue. It is a **host** (ground data
+loader) — the target side is the avionics box you are loading.
+
+### Which supplement do I need?
+
+The library handles **Supplements 2, 3 and 4**, and negotiates with what the
+target reports. Practically:
+
+| If the target announces | You get |
+| --- | --- |
+| Protocol version `A2` | 615A-1 behaviour: mandatory block-size option, no transfer-size or timeout options |
+| Protocol version `A3` | 615A-2/3: FIND available, optional transfer-size and timeout options, checksum and port options |
+| Protocol version `A4` | 615A-4: corrected part-number option, updated checksum option |
+
+You do not choose this — the target does, and the library adapts. The one option
+you may need to set by hand is `--port-option`, which enables the ARINC 615A-3
+Port Option.
+
+---
+
 ## What it does — block diagram
 
 ```mermaid
