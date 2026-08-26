@@ -1,0 +1,80 @@
+name: build
+
+# Linux only. A cold Windows build compiles ~84 vcpkg packages and libiconv
+# alone can run for hours, which does not fit a hosted runner without a warm
+# binary cache. Linux uses distro packages and completes in minutes.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Ubuntu / GCC
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preflight
+        run: scripts/doctor.sh || true   # informational before deps are installed
+
+      - name: Install dependencies
+        run: scripts/install-deps.sh
+
+      - name: Preflight (after install)
+        run: scripts/doctor.sh
+
+      - name: Build
+        run: scripts/build.sh release
+
+      - name: Smoke test - command catalogue
+        run: |
+          EXE=cmake-build-gcc-static-release/app/arinc_615a_operation/arinc_615a_operation
+          "$EXE" --help || true
+          "$EXE" --help 2>&1 | grep -q "AdhocUpload"     || { echo "missing command in catalogue"; exit 1; }
+          "$EXE" --help 2>&1 | grep -q "RemoveMediaSet"  || { echo "missing command in catalogue"; exit 1; }
+
+      - name: Smoke test - FIND terminates cleanly (TC-06)
+        run: |
+          EXE=cmake-build-gcc-static-release/app/arinc_615a_operation/arinc_615a_operation
+          "$EXE" -c Find
+          echo "FIND exited $?"
+
+      - name: Smoke test - media set manager (TC-07, TC-08)
+        run: |
+          EXE=cmake-build-gcc-static-release/app/arinc_615a_operation/arinc_615a_operation
+          MSM="$(mktemp -d)"
+          "$EXE" -c Create        --media-set-manager-dir="$MSM"
+          "$EXE" -c ListMediaSets --media-set-manager-dir="$MSM"
+          "$EXE" -c ListLoads     --media-set-manager-dir="$MSM"
+          test -f "$MSM/MediaSetManager.json" || { echo "MediaSetManager.json not created"; exit 1; }
+
+      - name: Smoke test - argument errors are rejected (TC-09..TC-11)
+        run: |
+          EXE=cmake-build-gcc-static-release/app/arinc_615a_operation/arinc_615a_operation
+          if "$EXE" >/dev/null 2>&1;                then echo "no-args should fail";        exit 1; fi
+          if "$EXE" -c NoSuchCommand >/dev/null 2>&1; then echo "bad command should fail";  exit 1; fi
+          echo "argument validation OK"
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: arinc_615a_operation-linux-x64
+          path: cmake-build-gcc-static-release/app/arinc_615a_operation/arinc_615a_operation
+          if-no-files-found: error
+
+  shellcheck:
+    name: Shell scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax check
+        run: for f in build.sh scripts/*.sh; do bash -n "$f" || exit 1; done
+      - name: ShellCheck
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck
+          shellcheck -S warning build.sh scripts/*.sh || true

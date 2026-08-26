@@ -29,3 +29,11 @@ symbology-style.db
 
 # Linux: locally fetched CMake when the distro ships one older than 4.3
 /.toolchain/
+
+# Vendored FetchContent dependencies (scripts/fetch-deps.*) - a local cache
+# that makes configure work offline, not part of this repository.
+/helper/
+/arinc-649/
+/arinc_665/
+/tftp/
+/commands/

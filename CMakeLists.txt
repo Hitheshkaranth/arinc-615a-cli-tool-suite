@@ -8,7 +8,7 @@ cmake_minimum_required( VERSION 4.3 )
 
 project(
   arinc_615a
-  #VERSION 0.0.0.0
+  VERSION 1.0.0
   DESCRIPTION "ARINC 615A Tool Suite"
   HOMEPAGE_URL "https://git.thomas-vogt.de/thomas-vogt/arinc_615a" )
 

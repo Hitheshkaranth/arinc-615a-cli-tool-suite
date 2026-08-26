@@ -70,10 +70,59 @@ The top-level `CMakeLists.txt` pulls five upstream repositories with
 | `tftp` | `https://git.thomas-vogt.de/thomas-vogt/tftp.git` |
 | `commands` | `https://git.thomas-vogt.de/thomas-vogt/commands.git` |
 
-**The configure step needs network access to `git.thomas-vogt.de`.** There is no
-vendored copy and no offline fallback. If you need one, place a checkout beside
-the source tree — CMake honours a sibling directory of the matching name and
-sets `FETCHCONTENT_SOURCE_DIR_<NAME>` for you.
+By default the configure step needs network access to `git.thomas-vogt.de`.
+**This is avoidable** — the top-level `CMakeLists.txt` already prefers an in-tree
+checkout when one exists:
+
+```cmake
+if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/helper )
+  set( FETCHCONTENT_SOURCE_DIR_HELPER ${CMAKE_SOURCE_DIR}/helper )
+endif()
+```
+
+Populate that hook once, on a connected machine, and configure never touches the
+network again:
+
+```bat
+scripts\fetch-deps.bat            REM clone or update all five
+scripts\fetch-deps.bat --status   REM report what is vendored
+```
+```bash
+scripts/fetch-deps.sh
+scripts/fetch-deps.sh --status
+```
+
+The five directories are git-ignored — a local cache, not part of this
+repository.
+
+### 2.4 Offline builds
+
+Three network dependencies, each removable:
+
+| Dependency | How to remove it |
+| --- | --- |
+| The five sibling projects | `scripts/fetch-deps.*` — see 2.3 |
+| vcpkg packages (Windows) | Copy `%LOCALAPPDATA%\vcpkg\archives` to the offline machine; the ~84 packages then restore from the binary cache instead of being rebuilt, which also avoids the libiconv autotools compile entirely |
+| Distro packages (Linux) | Install once, or pre-download with `apt-get install --download-only` |
+
+Confirm with the preflight check — the line to look for is
+**"Dependency sources — all 5 vendored in-tree — configure works OFFLINE"**.
+
+### 2.5 Preflight check
+
+```bat
+scripts\doctor.bat
+```
+```bash
+scripts/doctor.sh
+```
+
+`doctor` verifies every precondition in seconds and prints the exact fix for
+each failure, so nothing is discovered part-way through a long build. It checks
+the compiler, CMake ≥ 4.3 (noting that the Visual Studio copy is 3.31 and does
+not qualify), Ninja, git, whether the dependencies are vendored, reachability of
+`git.thomas-vogt.de`, the vcpkg path lengths, binary-cache state and free disk.
+It exits non-zero when the build cannot succeed.
 
 ---
 

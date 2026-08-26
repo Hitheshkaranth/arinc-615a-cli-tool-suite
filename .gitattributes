@@ -1,2 +1,21 @@
+# Normalise text files in the repository to LF.
+* text=auto eol=lf
+
+# Shell scripts MUST be LF. Checked out with CRLF (the Windows default when
+# core.autocrlf=true) they fail on Linux with "bad interpreter: ...^M".
+*.sh    text eol=lf
+*.bash  text eol=lf
+
+# Windows batch files MUST be CRLF, or cmd.exe mis-parses multi-line constructs.
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# Binary assets - never touch.
+*.png   binary
+*.webp  binary
+*.docx  binary
+*.zip   binary
+*.svg   text eol=lf
+
 # set *.ipp files to C++
 *.ipp gitlab-language=cpp

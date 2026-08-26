@@ -45,14 +45,27 @@ info "package manager: ${PM}"
 case "${PM}" in
   apt)
     $SUDO apt-get update
-    # libxml++ is needed by the arinc_665 dependency; 5.0 where available,
-    # 2.6 on older releases.
-    XMLPP="libxml++5.0-dev"
-    apt-cache show "${XMLPP}" >/dev/null 2>&1 || XMLPP="libxml++2.6-dev"
+    # libxml++ is needed by the arinc_665 dependency, which does
+    #   pkg_search_module( ... libxml++-5.0 )
+    # so it must be the 5.0 series specifically - 2.6 does not provide that
+    # .pc file and configure fails with "None of the required 'libxml++-5.0'
+    # found". The package is spelled with a hyphen on Debian/Ubuntu
+    # (libxml++-5.0-dev); the unhyphenated form is accepted as a fallback.
+    XMLPP=""
+    for cand in libxml++-5.0-dev libxml++5.0-dev; do
+      if apt-cache show "${cand}" >/dev/null 2>&1; then XMLPP="${cand}"; break; fi
+    done
+    [ -n "${XMLPP}" ] || die "no libxml++ 5.0 development package available; arinc_665 requires libxml++-5.0"
     info "libxml++ package: ${XMLPP}"
+    # Only the Boost components this project actually uses. libboost-all-dev
+    # would pull in 200+ packages including MPI, NumPy and ROCm/HIP.
     $SUDO apt-get install -y --no-install-recommends \
       build-essential g++ ninja-build git pkg-config ca-certificates curl tar \
-      libboost-all-dev libspdlog-dev libfmt-dev "${XMLPP}"
+      libboost-dev \
+      libboost-program-options-dev libboost-serialization-dev \
+      libboost-test-dev libboost-system-dev libboost-thread-dev \
+      libboost-filesystem-dev libboost-iostreams-dev \
+      libspdlog-dev libfmt-dev "${XMLPP}"
     ;;
   dnf)
     $SUDO dnf install -y \

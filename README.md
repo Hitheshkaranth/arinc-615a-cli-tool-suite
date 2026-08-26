@@ -332,6 +332,82 @@ Both accept `debug` or `release`, defaulting to `release`.
 
 ---
 
+## Check before you build
+
+If anything is missing, find out in seconds rather than forty minutes into a
+vcpkg build:
+
+```bat
+scripts\doctor.bat
+```
+```bash
+scripts/doctor.sh
+```
+
+`doctor` checks the compiler, CMake ≥ 4.3 (and tells you the Visual Studio copy
+is 3.31 and doesn't count), Ninja, git, whether the dependency sources are
+vendored, whether `git.thomas-vogt.de` is reachable, the vcpkg path lengths, the
+binary-cache state and free disk. Every failure prints the exact command that
+fixes it. It exits non-zero if the build cannot succeed.
+
+---
+
+## Offline builds
+
+The build has exactly **three** network dependencies. Remove them and it works
+air-gapped.
+
+### 1. The five sibling projects — the real blocker
+
+`CMakeLists.txt` clones `helper`, `arinc_649`, `arinc_665`, `tftp` and
+`commands` from `git.thomas-vogt.de` at configure time. **The project already
+supports vendoring them** — it prefers an in-tree checkout if one exists:
+
+```cmake
+if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/helper )
+  set( FETCHCONTENT_SOURCE_DIR_HELPER ${CMAKE_SOURCE_DIR}/helper )
+endif()
+```
+
+Populate that hook once, on a connected machine:
+
+```bat
+scripts\fetch-deps.bat            REM clone or update all five
+scripts\fetch-deps.bat --status   REM report what is vendored
+```
+```bash
+scripts/fetch-deps.sh
+scripts/fetch-deps.sh --status
+```
+
+After that, configure never touches the network. The five directories are
+git-ignored — they are a local cache, not part of this repository.
+
+### 2. vcpkg packages (Windows only)
+
+Populated on first build and reused from `%LOCALAPPDATA%\vcpkg\archives`.
+Copy that directory to the offline machine and the ~84 packages restore in
+seconds instead of being rebuilt — which is what turns a multi-hour first build
+into a short one, and avoids the libiconv autotools compile entirely.
+
+### 3. System packages (Linux only)
+
+Install them once from the distro, or pre-download with
+`apt-get install --download-only`. Linux never builds libiconv from source.
+
+### Air-gapped checklist
+
+| On a connected machine | Carry across | Result |
+| --- | --- | --- |
+| `scripts/fetch-deps.*` | the five dependency directories | configure needs no network |
+| one full build | `%LOCALAPPDATA%\vcpkg\archives` | vcpkg needs no network (Windows) |
+| — | distro packages or a prepared image | no package manager needed (Linux) |
+
+Verify with `doctor`: **"Dependency sources — all 5 vendored in-tree — configure
+works OFFLINE"** is the line to look for.
+
+---
+
 ## Using the CLI
 
 ```bat
@@ -442,6 +518,8 @@ no `PATH` setup either.
 
 | Document | What's in it |
 | --- | --- |
+| **[docs/README.md](docs/README.md)** | **Start here** — a map of all five documents, what each is for, and a reading order for a new maintainer |
+| **[CONTRIBUTING.md](CONTRIBUTING.md)** | The three local fixes that must survive an upstream merge, layout rules, line-ending rules, and how to regenerate the documents |
 | **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | How the codebase works — layer map, directory-by-directory walkthrough, protocol file table, operation flow, design conventions |
 | **[docs/CODE-TRACE.md](docs/CODE-TRACE.md)** | Function-by-function trace from `main()` to the wire and back through the handler callbacks, every entry carrying its `file:line`. 23 sections covering concurrency, dispatch, each protocol operation, the file codec, the TFTP shim, timers and abort, status codes, customisation points and known defects |
 | **[docs/ARINC615A-CLI-Installation-and-Test-Procedure.docx](docs/ARINC615A-CLI-Installation-and-Test-Procedure.docx)** | **Engineering document (Word).** Step-by-step install for Windows and Linux, command-by-command operation, a 16-case test procedure with expected results, troubleshooting, and 13 diagrams including the OSI mapping, the protocols on the wire, and how to interface the loader to other systems |
