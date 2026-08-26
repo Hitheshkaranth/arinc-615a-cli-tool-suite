@@ -241,7 +241,103 @@ access to that host, configure cannot complete. See 2.3.
 
 ---
 
-## 7. Other toolchains
+## 7. Linux
+
+The Linux path differs from Windows in one important way: **it uses system
+libraries, not vcpkg.** The GCC and Clang presets carry no vcpkg toolchain file,
+so dependencies come from the distro package manager. That makes it far quicker
+than the Windows first run — minutes, not hours — and `libiconv` never gets
+built from source, so the long-path failure in section 6.1 cannot occur.
+
+### One command
+
+```bash
+./build.sh                  # install deps, build release, show --help
+./build.sh -c Find          # ...then run with these arguments
+./build.sh debug -c Find    # ...as a debug build
+./build.sh --no-run         # install and build only
+```
+
+Or the steps separately:
+
+```bash
+scripts/install-deps.sh
+scripts/build.sh release
+```
+
+### What `scripts/install-deps.sh` installs
+
+Supported package managers: **apt**, **dnf**, **pacman**, **zypper**.
+
+| Need | apt | dnf | pacman | zypper |
+| --- | --- | --- | --- | --- |
+| Compiler | `build-essential g++` | `gcc-c++` | `base-devel` | `gcc-c++` |
+| Generator | `ninja-build` | `ninja-build` | `ninja` | `ninja` |
+| Boost | `libboost-all-dev` | `boost-devel` | `boost` | `boost-devel` |
+| spdlog | `libspdlog-dev` | `spdlog-devel` | `spdlog` | `spdlog-devel` |
+| fmt | `libfmt-dev` | `fmt-devel` | `fmt` | `fmt-devel` |
+| libxml++ | `libxml++5.0-dev`, falling back to `libxml++2.6-dev` | `libxml++-devel` | `libxml++` | `libxml++-devel` |
+| Misc | `git pkg-config curl tar ca-certificates` | same | same | same |
+
+`libxml++` is required by the `arinc_665` dependency, not by this repository's
+own libraries — `lib/arinc_615a` only calls `find_package( Boost )` and
+`find_package( spdlog )`.
+
+### CMake on Linux
+
+Every `CMakeLists.txt` here declares `cmake_minimum_required( VERSION 4.3 )`, and
+**most distributions ship something older**. The installer therefore:
+
+1. uses the system `cmake` if it already satisfies `>= 4.3`; otherwise
+2. downloads the official Kitware binary for `x86_64` or `aarch64` into
+   `.toolchain/cmake/` inside the repository, and uses that.
+
+`.toolchain/` is git-ignored. Override the version with
+`CMAKE_VERSION=4.4.2 scripts/install-deps.sh`. On any other architecture the
+script stops and asks you to install CMake >= 4.3 yourself.
+
+### Compiler requirement
+
+**GCC 13 or newer**, because every target sets `cxx_std_23`. The installer prints
+a warning if `g++ -dumpversion` reports less than 13 rather than failing, since
+some distributions backport enough of C++23 to work.
+
+### Running the result
+
+No `PATH` juggling is needed — the executable links against system libraries in
+the normal loader search path:
+
+```bash
+cmake-build-gcc-static-release/app/arinc_615a_operation/arinc_615a_operation --help
+cmake-build-gcc-static-release/app/arinc_615a_operation/arinc_615a_operation -c Find
+```
+
+### Warnings as errors
+
+`scripts/build.sh` passes `-DCMAKE_COMPILE_WARNING_AS_ERROR=OFF` for the same
+reason the Windows script does: the presets combine `-Werror` with `-Wall
+-Wextra -Wpedantic`, and a warning raised inside a dependency's headers would
+otherwise fail the build.
+
+### Not verified
+
+The Linux scripts were written against the presets and the distro package names
+but **were not executed** — this work was done on a Windows machine with no
+Linux environment available. They are syntax-checked (`bash -n`) and their
+argument handling was exercised, but the package installs, the CMake download
+and the compile itself have not been run. Treat the first Linux run as
+unverified, and expect package-name drift across distribution releases to be the
+most likely thing to need adjusting.
+
+### Cross-compiling for Windows from Linux
+
+`cmake/presets/CMakePresetsMinGwCross.json` provides MinGW cross presets using
+`cmake/mingw64-cross-toolchain.cmake`. They come from upstream and are not
+exercised by these scripts.
+
+---
+
+## 8. Other toolchains
 
 Presets also exist for GCC, Clang and a MinGW cross-build
 (`CMakePresetsGcc.json`, `CMakePresetsClang.json`, `CMakePresetsMinGwCross.json`),
@@ -255,7 +351,7 @@ cmake --build cmake-build-gcc-static-release
 
 ---
 
-## 8. Linked resources
+## 9. Linked resources
 
 Everything referenced by this build, in one place.
 
@@ -343,7 +439,7 @@ ARINC standards are published by SAE ITC and are not freely redistributable —
 
 ---
 
-## 9. Licence
+## 10. Licence
 
 Mozilla Public License 2.0 — see [LICENSE](LICENSE). Upstream project by
 Thomas Vogt, <https://git.thomas-vogt.de/thomas-vogt/arinc_615a>.

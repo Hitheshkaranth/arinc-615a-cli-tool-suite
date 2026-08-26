@@ -26,3 +26,6 @@ symbology-style.db
 # Release packaging output (produced by CI/packaging, not source)
 /release-pkg/
 /*.zip
+
+# Linux: locally fetched CMake when the distro ships one older than 4.3
+/.toolchain/

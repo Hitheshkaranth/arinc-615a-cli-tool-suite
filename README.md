@@ -12,7 +12,8 @@ Discover avionics targets, read part numbers, upload and download software over 
 [![Boost](https://img.shields.io/badge/Boost-1.92-F7901E?style=for-the-badge&logo=boost&logoColor=white)](https://www.boost.org/)
 [![Visual Studio](https://img.shields.io/badge/MSVC-2022-5C2D91?style=for-the-badge&logo=visualstudio&logoColor=white)](https://visualstudio.microsoft.com/)
 
-[![Windows](https://img.shields.io/badge/Windows-x64-0078D6?style=for-the-badge&logo=windows&logoColor=white)](#quick-start)
+[![Windows](https://img.shields.io/badge/Windows-x64-0078D6?style=for-the-badge&logo=windows&logoColor=white)](#quick-start--one-command)
+[![Linux](https://img.shields.io/badge/Linux-x64%20%7C%20arm64-FCC624?style=for-the-badge&logo=linux&logoColor=black)](#quick-start--one-command)
 [![vcpkg](https://img.shields.io/badge/vcpkg-manifest-1E90FF?style=for-the-badge&logo=microsoft&logoColor=white)](https://vcpkg.io/)
 [![Licence](https://img.shields.io/badge/Licence-MPL--2.0-A6CE39?style=for-the-badge&logo=mozilla&logoColor=white)](LICENSE)
 [![Protocol](https://img.shields.io/badge/ARINC-615A--4-1F6FEB?style=for-the-badge&logo=airbus&logoColor=white)](#protocol-background)
@@ -134,6 +135,28 @@ left mid-load in an undefined state. A second `Ctrl-C` terminates hard.
 
 ## Setup — what the scripts do
 
+Two paths, one command each. **Windows** gets its libraries from vcpkg;
+**Linux** gets them from the distro, which is why it is minutes rather than hours.
+
+```mermaid
+flowchart LR
+    W(["build.bat"]) --> WD["scripts\install-deps.bat<br/><i>vcpkg · ~84 packages</i>"]
+    WD --> WB["scripts\build.bat<br/><i>msvc-static-release</i>"]
+    WB --> WR["run with vcpkg<br/>DLLs on PATH"]
+
+    L(["./build.sh"]) --> LD["scripts/install-deps.sh<br/><i>apt · dnf · pacman · zypper</i>"]
+    LD --> LB["scripts/build.sh<br/><i>gcc-static-release</i>"]
+    LB --> LR["run directly<br/><i>system libraries</i>"]
+
+    classDef win fill:#0078D6,stroke:#005A9E,color:#fff
+    classDef lin fill:#8A6D00,stroke:#5E4A00,color:#fff
+    class W,WD,WB,WR win
+    class L,LD,LB,LR lin
+```
+
+The Windows path in detail — the two hazards marked are the ones that will
+otherwise cost you an afternoon:
+
 ```mermaid
 flowchart TD
     START(["scripts\install-deps.bat"]) --> VS{"Visual Studio<br/>C++ toolset?"}
@@ -183,26 +206,50 @@ minutes of work. Short roots avoid it entirely. Full detail in
 
 ---
 
-## Quick start
+## Quick start — one command
+
+From a fresh clone, this installs every dependency, builds, and runs the tool:
+
+**Windows**
 
 ```bat
-scripts\install-deps.bat
-scripts\build.bat release
+build.bat
 ```
 
-Then run it:
+**Linux**
+
+```bash
+./build.sh
+```
+
+That is the whole thing. Arguments pass straight through, so you can build and
+run something specific in the same breath:
 
 ```bat
-set "PATH=C:\vi\x64-windows\bin;%PATH%"
-cmake-build-msvc-static-release\app\arinc_615a_operation\arinc_615a_operation.exe --help
+build.bat -c Find                REM discover targets on the network
+build.bat debug -c Find          REM as a debug build
+build.bat --no-run               REM install and build only
 ```
 
-`build.bat` takes `debug` or `release`; it defaults to `release`.
+```bash
+./build.sh -c Find
+./build.sh debug -c Find
+./build.sh --no-run
+```
 
-> **First run is slow.** ~84 vcpkg packages get built, and `libiconv` alone can
-> run for hours on its two autotools configure passes. Later runs take minutes,
-> served from the vcpkg binary cache. Prefer not to wait? Grab a prebuilt binary
-> from [Releases](../../releases).
+> **First run is slow.** On Windows it builds ~84 vcpkg packages and `libiconv`
+> alone can run for hours on its two autotools configure passes. On Linux it
+> installs distro packages, which takes minutes. Later runs take seconds. Prefer
+> not to wait on Windows? Grab a prebuilt binary from [Releases](../../releases).
+
+### Or run the steps separately
+
+| | Windows | Linux |
+| --- | --- | --- |
+| Dependencies | `scripts\install-deps.bat` | `scripts/install-deps.sh` |
+| Build | `scripts\build.bat release` | `scripts/build.sh release` |
+
+Both accept `debug` or `release`, defaulting to `release`.
 
 ---
 
@@ -263,9 +310,11 @@ don't know them:
 | `the required argument for option '--timeout' is missing` | Space-separated short options get mis-consumed | Use `--timeout=5`, not `-t 5` |
 | `the argument ('--timeout') for option '--log-level' is invalid` | `-l` is bound to **both** `--log-level` and `--targets-list` inside `Find` | Avoid `-l` on that subcommand |
 
-## ⚠ The executable needs DLLs on PATH
+## ⚠ On Windows the executable needs DLLs on PATH
 
-The build links against the **dynamic** `x64-windows` triplet with
+`build.bat` handles this for you. Running the exe **directly** does not.
+
+The Windows build links against the **dynamic** `x64-windows` triplet with
 `VCPKG_APPLOCAL_DEPS=OFF`, so dependency DLLs are **not** copied beside the exe.
 Double-clicking it in Explorer fails with a missing-DLL error. Match the
 configuration — never mix release DLLs into a debug binary:
@@ -274,6 +323,16 @@ configuration — never mix release DLLs into a debug binary:
 set "PATH=C:\vi\x64-windows\bin;%PATH%"        REM release
 set "PATH=C:\vi\x64-windows\debug\bin;%PATH%"  REM debug
 ```
+
+**Linux has no such problem** — it links against system libraries already on the
+loader search path:
+
+```bash
+cmake-build-gcc-static-release/app/arinc_615a_operation/arinc_615a_operation -c Find
+```
+
+The [prebuilt Windows binary](../../releases) is bundled with its DLLs and needs
+no `PATH` setup either.
 
 ---
 
@@ -292,8 +351,10 @@ set "PATH=C:\vi\x64-windows\debug\bin;%PATH%"  REM debug
 │   │   └── information/        shared value types
 │   └── arinc_615a_commands/    CLI command wrappers
 ├── cmake/                      toolchain files, presets, install rules
-├── scripts/                    install-deps.bat · build.bat · _env.bat
-└── docs/                       BUILD.md · ARCHITECTURE.md · CODE-TRACE.md
+├── scripts/                    install-deps · build   (.bat Windows, .sh Linux)
+├── docs/                       BUILD.md · ARCHITECTURE.md · CODE-TRACE.md
+├── build.bat                   one command: deps + build + run  (Windows)
+└── build.sh                    one command: deps + build + run  (Linux)
 ```
 
 ---
@@ -310,13 +371,28 @@ set "PATH=C:\vi\x64-windows\debug\bin;%PATH%"  REM debug
 
 ## Dependencies
 
-**Toolchain** — Visual Studio 2022 C++ build tools, **CMake ≥ 4.3**, Ninja, Git.
-The compiler must support **C++23**.
+The setup scripts install all of this. It's listed so you know what lands on
+your machine.
 
-**Libraries** (vcpkg, from `vcpkg.json`) — Boost (asio, crc, endian, exception,
-hash2, multi-index, program-options, property-tree, serialization, signals2,
-test), [libxml++](https://libxmlplusplus.github.io/libxmlplusplus/),
-[spdlog](https://github.com/gabime/spdlog), pkgconf. ~84 packages resolved.
+| | Windows | Linux |
+| --- | --- | --- |
+| Compiler | Visual Studio 2022 C++ build tools | GCC 13+ |
+| Build system | **CMake ≥ 4.3** + Ninja | **CMake ≥ 4.3** + Ninja |
+| Libraries from | **vcpkg**, via `vcpkg.json` (~84 packages) | **distro packages** — apt · dnf · pacman · zypper |
+| Installed to | `C:\vi` (plus `C:\vb`, `C:\vp` as vcpkg scratch) | system prefix |
+| DLL/so handling | needs `PATH` set — see above | nothing to do |
+
+The compiler must support **C++23**; every target sets `cxx_std_23`.
+
+Most distributions ship a CMake older than 4.3, so `scripts/install-deps.sh`
+fetches the official Kitware binary into a git-ignored `.toolchain/` when needed.
+
+**Libraries** — Boost (asio, crc, endian, exception, hash2, multi-index,
+program-options, property-tree, serialization, signals2, test),
+[libxml++](https://libxmlplusplus.github.io/libxmlplusplus/),
+[spdlog](https://github.com/gabime/spdlog),
+[fmt](https://fmt.dev/), pkgconf. `libxml++` is required by the `arinc_665`
+dependency rather than by this repository's own libraries.
 
 **Sibling projects**, cloned during configure via `FetchContent`:
 [helper](https://git.thomas-vogt.de/thomas-vogt/helper) ·
@@ -330,14 +406,21 @@ test), [libxml++](https://libxmlplusplus.github.io/libxmlplusplus/),
 
 ### Other toolchains
 
-Presets also exist for **GCC**, **Clang** and a **MinGW cross-build**, each in
-static/shared × debug/release, for Linux and Windows. They come from upstream and
-are not exercised by `scripts\build.bat`, which is Windows/MSVC only.
+`build.bat` drives the **MSVC** presets and `build.sh` drives the **GCC** ones.
+Presets also exist for **Clang** and a **MinGW cross-build** (Windows binaries
+from Linux), each in static/shared × debug/release. Those two come from upstream
+and are not exercised by either script:
 
 ```bash
-cmake --preset gcc-static-release
-cmake --build cmake-build-gcc-static-release
+cmake --preset clang-static-release
+cmake --build cmake-build-clang-static-release
 ```
+
+> **The Linux scripts have not been run.** They were written against the presets
+> and distro package names on a Windows machine with no Linux environment
+> available, and are syntax-checked only. Package names are the most likely
+> thing to need adjusting across distribution releases. See
+> [docs/BUILD.md §7](docs/BUILD.md) for the detail.
 
 ---
 
