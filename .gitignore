@@ -22,3 +22,7 @@ CMakeFiles/
 # Local databases
 user-history.db
 symbology-style.db
+
+# Release packaging output (produced by CI/packaging, not source)
+/release-pkg/
+/*.zip
