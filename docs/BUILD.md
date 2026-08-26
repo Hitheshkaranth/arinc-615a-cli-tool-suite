@@ -255,7 +255,95 @@ cmake --build cmake-build-gcc-static-release
 
 ---
 
-## 8. Licence
+## 8. Linked resources
+
+Everything referenced by this build, in one place.
+
+### Toolchain downloads
+
+| Tool | Link | Install |
+| --- | --- | --- |
+| Visual Studio 2022 Build Tools | <https://visualstudio.microsoft.com/downloads/> | `winget install --id Microsoft.VisualStudio.2022.BuildTools -e --override "--quiet --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"` |
+| CMake (>= 4.3 required) | <https://cmake.org/download/> | `winget install --id Kitware.CMake -e` |
+| Ninja | <https://ninja-build.org/> | Ships with the VS "C++ CMake tools for Windows" component |
+| Git | <https://git-scm.com/downloads> | `winget install --id Git.Git -e` |
+| vcpkg | <https://github.com/microsoft/vcpkg> | Cloned and bootstrapped by `scripts\install-deps.bat` |
+
+### vcpkg reference
+
+- Manifest mode (`vcpkg.json`) — <https://learn.microsoft.com/vcpkg/consume/manifest-mode>
+- Binary caching (`%LOCALAPPDATA%
+cpkgrchives`) — <https://learn.microsoft.com/vcpkg/consume/binary-caching-overview>
+- Triplets (`x64-windows` is dynamic) — <https://learn.microsoft.com/vcpkg/users/triplets>
+- Build failure troubleshooting — <https://learn.microsoft.com/vcpkg/troubleshoot/build-failures>
+
+### Sibling projects (fetched by `FetchContent`)
+
+| Project | Repository | Role in this build |
+| --- | --- | --- |
+| `helper` | <https://git.thomas-vogt.de/thomas-vogt/helper> | Shared utilities, logging setup, exception tags |
+| `arinc_649` | <https://git.thomas-vogt.de/thomas-vogt/arinc-649> | `CheckValue` and check-value generators |
+| `arinc_665` | <https://git.thomas-vogt.de/thomas-vogt/arinc_665> | Media sets, load headers — the `Create`/`Import`/`List*` commands |
+| `tftp` | <https://git.thomas-vogt.de/thomas-vogt/tftp> | The TFTP client/server the protocol rides on |
+| `commands` | <https://git.thomas-vogt.de/thomas-vogt/commands> | `CommandRegistry` and command-line dispatch |
+| upstream | <https://git.thomas-vogt.de/thomas-vogt/arinc_615a> | The project this repository is trimmed from |
+
+### Library dependencies
+
+| Library | Home |
+| --- | --- |
+| Boost | <https://www.boost.org/> |
+| Boost.Asio | <https://www.boost.org/doc/libs/release/doc/html/boost_asio.html> |
+| Boost.Program_options | <https://www.boost.org/doc/libs/release/doc/html/program_options.html> |
+| libxml++ | <https://libxmlplusplus.github.io/libxmlplusplus/> |
+| spdlog | <https://github.com/gabime/spdlog> |
+| fmt | <https://fmt.dev/> |
+| libxml2 | <https://gitlab.gnome.org/GNOME/libxml2> |
+| libiconv | <https://www.gnu.org/software/libiconv/> |
+| zlib | <https://zlib.net/> |
+
+### CMake reference
+
+- `cmake-presets(7)` — <https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html>
+- `FetchContent` — <https://cmake.org/cmake/help/latest/module/FetchContent.html>
+- `generate_export_header` — <https://cmake.org/cmake/help/latest/module/GenerateExportHeader.html>
+- `install(RUNTIME_DEPENDENCY_SET)` — <https://cmake.org/cmake/help/latest/command/install.html#runtime-dependency-set>
+
+### MSVC reference — for the failure modes in section 6
+
+- `/external:` warning control — <https://learn.microsoft.com/cpp/build/reference/external-external-headers-diagnostics>
+- `/WX` warnings as errors — <https://learn.microsoft.com/cpp/build/reference/compiler-option-warning-level>
+- Warning C4127 — <https://learn.microsoft.com/cpp/error-messages/compiler-warnings/compiler-warning-level-4-c4127>
+- Error LNK2019 — <https://learn.microsoft.com/cpp/error-messages/tool-errors/linker-tools-error-lnk2019>
+- Maximum path length and the `\\?\` long-path prefix — <https://learn.microsoft.com/windows/win32/fileio/maximum-file-path-limitation>
+
+### Standards
+
+| Standard | Title |
+| --- | --- |
+| ARINC 615A-4 | Software Data Loader Using Ethernet Interface |
+| ARINC 665-5 | Loadable Software Standards |
+| ARINC 649 | Common Terminology and Functions for Software Distribution and Loading |
+| RFC 1350 | The TFTP Protocol (Revision 2) — <https://www.rfc-editor.org/rfc/rfc1350> |
+| RFC 2347 | TFTP Option Extension — <https://www.rfc-editor.org/rfc/rfc2347> |
+| RFC 2348 | TFTP Blocksize Option — <https://www.rfc-editor.org/rfc/rfc2348> |
+| RFC 2349 | TFTP Timeout Interval and Transfer Size Options — <https://www.rfc-editor.org/rfc/rfc2349> |
+
+ARINC standards are published by SAE ITC and are not freely redistributable —
+<https://www.aviation-ia.com/product-categories/arinc-standards>.
+
+### Documents in this repository
+
+| Document | Contents |
+| --- | --- |
+| [../README.md](../README.md) | Overview, diagrams, command list, quick start |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Layer map, directory-by-directory walkthrough, design conventions |
+| [CODE-TRACE.md](CODE-TRACE.md) | Function-by-function trace from `main()` to the wire, with `file:line` |
+| [BUILD.md](BUILD.md) | This document |
+
+---
+
+## 9. Licence
 
 Mozilla Public License 2.0 — see [LICENSE](LICENSE). Upstream project by
 Thomas Vogt, <https://git.thomas-vogt.de/thomas-vogt/arinc_615a>.

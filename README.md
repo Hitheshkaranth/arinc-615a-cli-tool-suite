@@ -293,7 +293,7 @@ set "PATH=C:\vi\x64-windows\debug\bin;%PATH%"  REM debug
 │   └── arinc_615a_commands/    CLI command wrappers
 ├── cmake/                      toolchain files, presets, install rules
 ├── scripts/                    install-deps.bat · build.bat · _env.bat
-└── docs/                       BUILD.md · ARCHITECTURE.md
+└── docs/                       BUILD.md · ARCHITECTURE.md · CODE-TRACE.md
 ```
 
 ---
@@ -303,7 +303,8 @@ set "PATH=C:\vi\x64-windows\debug\bin;%PATH%"  REM debug
 | Document | What's in it |
 | --- | --- |
 | **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | How the codebase works — layer map, directory-by-directory walkthrough, protocol file table, operation flow, design conventions |
-| **[docs/BUILD.md](docs/BUILD.md)** | Every build stage in order, all dependencies and how to install them, and the failure modes that will otherwise stop you |
+| **[docs/CODE-TRACE.md](docs/CODE-TRACE.md)** | Function-by-function trace from `main()` to the wire and back through the handler callbacks, every entry carrying its `file:line`. 23 sections covering concurrency, dispatch, each protocol operation, the file codec, the TFTP shim, timers and abort, status codes, customisation points and known defects |
+| **[docs/BUILD.md](docs/BUILD.md)** | Every build stage in order, all dependencies and how to install them, the failure modes that will otherwise stop you, and every linked resource in one place |
 
 ---
 
