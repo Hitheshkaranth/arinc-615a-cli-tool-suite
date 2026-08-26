@@ -133,6 +133,85 @@ left mid-load in an undefined state. A second `Ctrl-C` terminates hard.
 
 ---
 
+## How it works — the protocol stack
+
+ARINC 615A is an **application-layer protocol only**. It defines no transport of
+its own: it rides on TFTP over UDP over IPv4 over Ethernet. Everything below the
+session layer belongs to the operating system and the network, which is why
+interfacing the loader to another system is mostly a networking exercise.
+
+```mermaid
+flowchart TB
+    subgraph HERE["implemented by this software"]
+        L7["<b>7 · Application</b><br/>ARINC 615A Data Load Protocol · FIND<br/><i>LCI LCL LCS LUI LUR LUS LNR LNA LNS</i>"]
+        L6["<b>6 · Presentation</b><br/>615A file encoding · ARINC 665 load format<br/><i>binary records, length-prefixed strings</i>"]
+        L5["<b>5 · Session</b><br/>DLP operation · TFTP transfer session<br/><i>exception timer 13 s · DLP retries</i>"]
+    end
+    subgraph OS["provided by the OS and network"]
+        L4["<b>4 · Transport</b><br/>UDP — connectionless<br/><i>data load 59 · FIND 1001 · options RFC 2347-2349</i>"]
+        L3["<b>3 · Network</b><br/>IPv4 · ARP · ICMP<br/><i>unicast, or 255.255.255.255 for FIND</i>"]
+        L2["<b>2 · Data link</b><br/>Ethernet IEEE 802.3<br/><i>one broadcast domain required</i>"]
+        L1["<b>1 · Physical</b><br/>10/100/1000BASE-T<br/><i>usually a dedicated maintenance port</i>"]
+    end
+    L7 --> L6 --> L5 --> L4 --> L3 --> L2 --> L1
+
+    classDef mine fill:#0B5CA8,stroke:#083F73,color:#fff
+    classDef osl fill:#5A6472,stroke:#3D4551,color:#fff
+    class L7,L6,L5 mine
+    class L4,L3,L2,L1 osl
+```
+
+### What else is on the wire
+
+A packet capture during a load shows more than ARINC 615A:
+
+| Protocol | Role during an operation | Driven by |
+| --- | --- | --- |
+| **ARINC 615A DLP** | The protocol files themselves | This tool |
+| **FIND** | Discovery — IRQ (opcode 1) / IAN (opcode 2) | This tool |
+| **ARINC 665** | Load and media-set format inside the transfer | This tool |
+| **TFTP** (RFC 1350) | Moves every protocol file and load file | `tftp` library |
+| **TFTP options** (RFC 2347–2349) | Block size, timeout, transfer size negotiation | This tool |
+| **UDP** | Connectionless datagrams, no delivery guarantee | OS |
+| **IPv4 / ARP / ICMP** | Addressing, MAC resolution, diagnostics | OS |
+| **Ethernet 802.3** | Framing; carries the FIND broadcast | NIC / switch |
+
+### Ports and timers
+
+Taken from the source constants, not from the standard's text:
+
+| Purpose | Default | Constant | Override |
+| --- | --- | --- | --- |
+| Data load (TFTP) | **UDP 59** | `DefaultArinc615aTftpPort` | `--server-port` |
+| FIND discovery | **UDP 1001** | `Find::DefaultPort` | `--find-port` |
+| TFTP packet timeout | 2 s | `DefaultArinc615aTftpTimeout` | `--tftp-timeout` |
+| DLP exception timer | 13 s | `DefaultArinc615aDlpTimeout` | `--dlp-timeout` |
+| DLP / TFTP retries | 1 | `DefaultArinc615a*Retries` | `--dlp-retries` |
+
+> ⚠ The data-load port is **UDP 59, not the TFTP well-known port 69**. ARINC
+> 615A-1 states it explicitly. A firewall that permits only 69 will stop the load
+> before it starts.
+
+### Interfacing it to another system
+
+- **As a process** — invoke the CLI and read its exit code. `--targets-list`
+  writes machine-readable discovery output a wrapper can parse and feed back in.
+- **As a library** — link `lib/arinc_615a` and implement the
+  `…OperationHandler` interfaces to receive progress, status and completion
+  callbacks. The CLI is itself only a thin consumer of that API.
+- **Software to load** arrives as ARINC 665 media sets, managed through the
+  Media Set Manager directory.
+
+Network conditions that must hold:
+
+- Host and target must share a **broadcast domain**, or FIND discovers nothing.
+  Across a router, address the target directly with `--target-address`.
+- **UDP 59 and UDP 1001** must not be filtered between host and target.
+- On a **multi-homed host**, set `--local-tftp-address` and
+  `--local-find-address` explicitly or the sockets may bind to the wrong NIC.
+
+---
+
 ## Setup — what the scripts do
 
 Two paths, one command each. **Windows** gets its libraries from vcpkg;
@@ -365,6 +444,7 @@ no `PATH` setup either.
 | --- | --- |
 | **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | How the codebase works — layer map, directory-by-directory walkthrough, protocol file table, operation flow, design conventions |
 | **[docs/CODE-TRACE.md](docs/CODE-TRACE.md)** | Function-by-function trace from `main()` to the wire and back through the handler callbacks, every entry carrying its `file:line`. 23 sections covering concurrency, dispatch, each protocol operation, the file codec, the TFTP shim, timers and abort, status codes, customisation points and known defects |
+| **[docs/ARINC615A-CLI-Installation-and-Test-Procedure.docx](docs/ARINC615A-CLI-Installation-and-Test-Procedure.docx)** | **Engineering document (Word).** Step-by-step install for Windows and Linux, command-by-command operation, a 16-case test procedure with expected results, troubleshooting, and 13 diagrams including the OSI mapping, the protocols on the wire, and how to interface the loader to other systems |
 | **[docs/BUILD.md](docs/BUILD.md)** | Every build stage in order, all dependencies and how to install them, the failure modes that will otherwise stop you, and every linked resource in one place |
 
 ---
