@@ -1,0 +1,256 @@
+{
+  "version": 10,
+
+  "configurePresets": [
+    {
+      "name": "gcc-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "cmake-build-${presetName}",
+      "installDir": "cmake-install-${presetName}",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "True"
+      }
+    },
+    {
+      "name": "gcc-static-debug",
+      "displayName": "GCC Static Debug",
+      "description": "GCC Static Debug",
+      "inherits": "gcc-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "gcc-static-release",
+      "displayName": "GCC Static Release",
+      "description": "GCC Static Release",
+      "inherits": "gcc-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc-shared-debug",
+      "displayName": "GCC Shared Debug",
+      "description": "GCC Shared Debug",
+      "inherits": "gcc-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_SHARED_LIBS": true
+      }
+    },
+    {
+      "name": "gcc-shared-release",
+      "displayName": "GCC Shared Release",
+      "description": "GCC Shared Release",
+      "inherits": "gcc-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_SHARED_LIBS": true
+      }
+    }
+  ],
+
+  "buildPresets": [
+    {
+      "name": "gcc-static-debug",
+      "displayName": "GCC Static Debug Build",
+      "configurePreset": "gcc-static-debug"
+    },
+    {
+      "name": "gcc-static-debug-with-doc",
+      "displayName": "GCC Static Debug Build including Documentation",
+      "configurePreset": "gcc-static-debug",
+      "targets": [ "all", "doc" ]
+    },
+    {
+      "name": "gcc-static-release",
+      "displayName": "GCC Static Release Build",
+      "configurePreset": "gcc-static-release"
+    },
+    {
+      "name": "gcc-static-release-with-doc",
+      "displayName": "GCC Static Release Build including Documentation",
+      "configurePreset": "gcc-static-release",
+      "targets": [ "all", "doc" ]
+    },
+    {
+      "name": "gcc-shared-debug",
+      "displayName": "GCC Shared Debug Build",
+      "configurePreset": "gcc-shared-debug"
+    },
+    {
+      "name": "gcc-shared-debug-with-doc",
+      "displayName": "GCC Shared Debug Build including Documentation",
+      "configurePreset": "gcc-shared-debug",
+      "targets": [ "all", "doc" ]
+    },
+    {
+      "name": "gcc-shared-release",
+      "displayName": "GCC Shared Release Build",
+      "configurePreset": "gcc-shared-release"
+    },
+    {
+      "name": "gcc-shared-release-with-doc",
+      "displayName": "GCC Shared Release Build including Documentation",
+      "configurePreset": "gcc-shared-release",
+      "targets": [ "all", "doc" ]
+    }
+  ],
+
+  "testPresets": [
+    {
+      "name": "gcc-static-debug",
+      "displayName": "GCC Static Debug Tests",
+      "configurePreset": "gcc-static-debug",
+      "output": {
+        "outputJUnitFile": "test-log.junit.xml"
+      }
+    },
+    {
+      "name": "gcc-static-release",
+      "displayName": "GCC Static Release Tests",
+      "configurePreset": "gcc-static-release",
+      "output": {
+        "outputJUnitFile": "test-log.junit.xml"
+      }
+    },
+    {
+      "name": "gcc-shared-debug",
+      "displayName": "GCC Shared Debug Tests",
+      "configurePreset": "gcc-shared-debug",
+      "output": {
+        "outputJUnitFile": "test-log.junit.xml"
+      }
+    },
+    {
+      "name": "gcc-shared-release",
+      "displayName": "GCC Shared Release Tests",
+      "configurePreset": "gcc-shared-release",
+      "output": {
+        "outputJUnitFile": "test-log.junit.xml"
+      }
+    }
+  ],
+
+  "packagePresets": [
+    {
+      "name": "gcc-static-debug",
+      "displayName": "GCC Static Debug Packaging",
+      "configurePreset": "gcc-static-debug"
+    },
+    {
+      "name": "gcc-static-release",
+      "displayName": "GCC Static Release Packaging",
+      "configurePreset": "gcc-static-release"
+    },
+    {
+      "name": "gcc-shared-debug",
+      "displayName": "GCC Shared Debug Packaging",
+      "configurePreset": "gcc-shared-debug"
+    },
+    {
+      "name": "gcc-shared-release",
+      "displayName": "GCC Shared Release Packaging",
+      "configurePreset": "gcc-shared-release"
+    }
+  ],
+
+  "workflowPresets": [
+    {
+      "name": "gcc-static-debug",
+      "displayName": "GCC Static Debug Workflow",
+      "description": "Build, test and package GCC Static Debug Configuration",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "gcc-static-debug"
+        },
+        {
+          "type": "build",
+          "name": "gcc-static-debug-with-doc"
+        },
+        {
+          "type": "test",
+          "name": "gcc-static-debug"
+        },
+        {
+          "type": "package",
+          "name": "gcc-static-debug"
+        }
+      ]
+    },
+    {
+      "name": "gcc-static-release",
+      "displayName": "GCC Static Release Workflow",
+      "description": "Build, test and package GCC Static Release Configuration",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "gcc-static-release"
+        },
+        {
+          "type": "build",
+          "name": "gcc-static-release-with-doc"
+        },
+        {
+          "type": "test",
+          "name": "gcc-static-release"
+        },
+        {
+          "type": "package",
+          "name": "gcc-static-release"
+        }
+      ]
+    },
+    {
+      "name": "gcc-shared-debug",
+      "displayName": "GCC Shared Debug Workflow",
+      "description": "Build, test and package GCC Shared Debug Configuration",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "gcc-shared-debug"
+        },
+        {
+          "type": "build",
+          "name": "gcc-shared-debug-with-doc"
+        },
+        {
+          "type": "test",
+          "name": "gcc-shared-debug"
+        },
+        {
+          "type": "package",
+          "name": "gcc-shared-debug"
+        }
+      ]
+    },
+    {
+      "name": "gcc-shared-release",
+      "displayName": "GCC Shared Release Workflow",
+      "description": "Build, test and package GCC Shared Release Configuration",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "gcc-shared-release"
+        },
+        {
+          "type": "build",
+          "name": "gcc-shared-release-with-doc"
+        },
+        {
+          "type": "test",
+          "name": "gcc-shared-release"
+        },
+        {
+          "type": "package",
+          "name": "gcc-shared-release"
+        }
+      ]
+    }
+  ]
+}

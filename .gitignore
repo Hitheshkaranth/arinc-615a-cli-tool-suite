@@ -1,0 +1,7 @@
+/CMakeUserPresets.json
+/cmake-build-*/
+/cmake-install-*/
+/ccache/
+/.idea/
+user-history.db
+symbology-style.db

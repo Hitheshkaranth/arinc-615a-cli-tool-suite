@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "dependencies": [
+    "boost-asio",
+    "boost-crc",
+    "boost-endian",
+    "boost-exception",
+    "boost-hash2",
+    "boost-multi-index",
+    "boost-program-options",
+    "boost-property-tree",
+    "boost-serialization",
+    "boost-signals2",
+    "boost-test",
+    "libxmlpp",
+    "pkgconf",
+    "spdlog"
+  ]
+}

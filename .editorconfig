@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: MPL-2.0
+
+# This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+# If a copy of the MPL was not distributed with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+# Check https://editorconfig.org for details.
+
+[*]
+end_of_line = lf
+charset = utf-8
+insert_final_newline = true
+
+[*.{c,h,cpp,hpp,ipp}]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+tab_width = 2
+max_line_length = 100
+
+[{CMakeLists.txt,*.cmake}]
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+tab_width = 2
+max_line_length = 100
+
+[*.md]
+trim_trailing_whitespace = true
+max_line_length = off

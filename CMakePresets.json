@@ -1,0 +1,10 @@
+{
+  "version": 10,
+
+  "include": [
+    "CMakePresetsGcc.json",
+    "CMakePresetsClang.json",
+    "CMakePresetsMsvc.json",
+    "CMakePresetsMinGwCross.json"
+  ]
+}

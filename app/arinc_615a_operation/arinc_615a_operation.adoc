@@ -1,0 +1,47 @@
+= arinc_615a_operation(1)
+Thomas Vogt
+
+== Name
+
+arinc_615a_operation - executes ARINC 615A operation.
+
+== Synopsis
+
+*arinc_615a_operation*
+-c|--command=
+_AdhocUpload|BatchUpload|Create|Find|ImportMediaSet|ImportMediaSetXml|Information|ListBatches|ListLoads|ListMediaSets|MedDownload|OpDownload|RemoveMediaSet|Targets|Upload_
+
+== Options
+
+// tag::options[]
+*-c|--command* _ARINC 615A Operation_::
+ARINC 615A Operation.
+* AdhocUpload - ARINC 615A Adhoc Upload Operation
+* BatchUpload - ARINC 615A Batch Upload Operation
+* Create - Create ARINC 665 Media Set Manager
+* Find - ARINC 615A FIND Query
+* ImportMediaSet - Import ARINC 665 Media Set
+* ImportMediaSetXml - Import ARINC Media Set XML
+* Information - ARINC 615A Information Operation
+* ListBatches - List batches contained within all ARINC 665 Media Sets
+* ListLoads - List Loads contained within all ARINC 665 Media Sets
+* ListMediaSets - List ARINC 665 Media Sets
+* MedDownload - ARINC 615A Media Defined Download Operation
+* OpDownload - ARINC 615A Operator Defined Download Operation
+* RemoveMediaSet - Remove ARINC 665 Media Set
+* Targets - List ARINC 615A Targets
+* Upload - ARINC 615A Upload Operation
+
+== See Also
+
+link:[arinc_615a_operation-adhoc-upload(1)]
+link:[arinc_615a_operation-batch-upload(1)]
+link:[arinc_615a_operation-find(1)]
+link:[arinc_615a_operation-list-targets(1)]
+link:[arinc_615a_operation-information(1)]
+link:[arinc_615a_operation-upload(1)]
+link:[arinc_615a_operation-media-defined-download(1)]
+link:[arinc_615a_operation-operator-defined-download(1)]
+link:[arinc_665_media_set_manager-list-batches(1)]
+link:[arinc_665_media_set_manager-list-loads(1)]
+link:[arinc_665_media_set_manager-list-media-sets(1)]
