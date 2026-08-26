@@ -2,9 +2,9 @@
   "version": 10,
 
   "include": [
-    "CMakePresetsGcc.json",
-    "CMakePresetsClang.json",
-    "CMakePresetsMsvc.json",
-    "CMakePresetsMinGwCross.json"
+    "cmake/presets/CMakePresetsGcc.json",
+    "cmake/presets/CMakePresetsClang.json",
+    "cmake/presets/CMakePresetsMsvc.json",
+    "cmake/presets/CMakePresetsMinGwCross.json"
   ]
 }

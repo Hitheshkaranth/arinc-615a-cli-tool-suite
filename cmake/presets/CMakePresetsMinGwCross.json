@@ -12,7 +12,7 @@
       "cacheVariables": {
         "CMAKE_COMPILE_WARNING_AS_ERROR": "True",
         "VCPKG_APPLOCAL_DEPS": "OFF",
-        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "${sourceDir}/mingw64-cross-toolchain.cmake"
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "${sourceDir}/cmake/mingw64-cross-toolchain.cmake"
       },
       "vendor": {
         "jetbrains.com/clion": {

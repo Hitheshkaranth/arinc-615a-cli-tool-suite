@@ -117,5 +117,5 @@ install(
   COMPONENT runtime )
 
 if( PROJECT_IS_TOP_LEVEL )
-  include( InstallPackage.cmake )
+  include( cmake/InstallPackage.cmake )
 endif()
