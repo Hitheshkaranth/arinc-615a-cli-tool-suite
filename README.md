@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/ProjectLogo.svg" alt="ARINC 615A Tool Suite" width="180">
+<img src="docs/arinc-logo.webp" alt="ARINC" width="300">
 
 # ARINC 615A Tool Suite — CLI
 
@@ -366,3 +366,8 @@ Functions for Software Distribution and Loading).
 Mozilla Public License 2.0. Upstream project © Thomas Vogt —
 <https://git.thomas-vogt.de/thomas-vogt/arinc_615a>. The MPL requires this
 licence and its attribution to be retained in redistributions, including this one.
+
+ARINC® is a trademark of its respective owner. This project implements the
+publicly documented ARINC 615A protocol and is **not affiliated with, endorsed
+by, or a product of ARINC**. The ARINC standards themselves are published by
+SAE ITC and are not redistributed here.
