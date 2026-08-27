@@ -30,7 +30,7 @@ directory layout, [BUILD.md](BUILD.md) for building and dependencies.
 
 A function-by-function trace of the command-line data loader in this repository: every function on the path from `main()` to a byte on the wire, and back up through the handler callbacks that print to the console.
 
-This working copy has been reduced to a **CLI-only variant**: `app/CMakeLists.txt` wires in a single application and the Qt libraries have been removed from `lib/`. The table below reflects that state — see §20 for what the variant excludes and how to re-enable a target.
+This repository is the command-line distribution of the tool suite: `app/CMakeLists.txt` wires in a single application. The table below reflects that state — see §20 for what it excludes and how to re-enable a target.
 
 | Target | Role | Covered |
 | --- | --- | --- |
@@ -38,7 +38,6 @@ This working copy has been reduced to a **CLI-only variant**: `app/CMakeLists.tx
 | arinc_615a_download_request_file | On disk, not wired into the build. Offline generator for the `.LNR` request file | §18 |
 | arinc_615a_test_tha | On disk, not wired into the build. Simulated target hardware | Referenced only |
 | arinc_615a_unit_test | On disk, not wired into the build. Boost.Test suite | Out of scope |
-| arinc_615a_data_loader_gui | Removed from this working copy along with the Qt libraries | Out of scope |
 
 #### How to read it
 
@@ -54,11 +53,11 @@ Every function block carries its source location as `file:line`. Line numbers re
 
 ### Six layers, one direction
 
-Control flows downward through six layers on the way out and returns through registered handler callbacks on the way in. No layer calls back into the layer above it directly; the upward path is always a `std::function` or an abstract handler interface bound during setup. That inversion is what lets the same host protocol library serve both the CLI and the Qt GUI. Calls descend the stack; results climb it only through handlers bound at setup time. The command layer implements the host layer's handler interfaces, which is why a command object *is* its own callback sink.
+Control flows downward through six layers on the way out and returns through registered handler callbacks on the way in. No layer calls back into the layer above it directly; the upward path is always a `std::function` or an abstract handler interface bound during setup. That inversion is what lets the same host protocol library serve any front end built on top of it. Calls descend the stack; results climb it only through handlers bound at setup time. The command layer implements the host layer's handler interfaces, which is why a command object *is* its own callback sink.
 
 #### The dependency that shapes everything
 
-Five of this project's dependencies are pulled at configure time by `FetchContent` from `git.thomas-vogt.de` — `helper`, `arinc_649`, `arinc_665`, `tftp`, and `commands`. (`qt_icon_resources` was dropped when this tree was reduced to the CLI variant.) Two of them carry weight in the CLI path and are worth naming:
+Five of this project's dependencies are pulled at configure time by `FetchContent` from `git.thomas-vogt.de` — `helper`, `arinc_649`, `arinc_665`, `tftp`, and `commands`. Two of them carry weight in the CLI path and are worth naming:
 
 - `commands` supplies `Commands::CommandRegistry` and `Commands::Utils_commandLineHandler` — the entire sub-command dispatch mechanism. It is not in this repository.
 - `tftp` supplies the generic TFTP client and server. The `Arinc615a::Tftp` namespace in this repository is a thin decorator over it, not a reimplementation.
@@ -827,7 +826,7 @@ Every field below is a member of `Arinc615aConfiguration` or a per-command varia
 | Log verbosity, all libraries | --log-level | — | warn |
 There is no config file
 
-`Arinc615aConfiguration::fromProperties()` and `toProperties()` exist and read JSON keys `local_tftp_address`, `dlp_retries`, `tftp`, `tftp_options`, `protocol_file_logging` — but **the CLI never calls them**. They serve the GUI and the test target application. If you want a config file for the CLI, that is the hook to wire up: parse the JSON in `execute()` before `notify()` and let command-line options override it.
+`Arinc615aConfiguration::fromProperties()` and `toProperties()` exist and read JSON keys `local_tftp_address`, `dlp_retries`, `tftp`, `tftp_options`, `protocol_file_logging` — but **the CLI never calls them**. They serve the test target application. If you want a config file for the CLI, that is the hook to wire up: parse the JSON in `execute()` before `notify()` and let command-line options override it.
 
 #### Tier 2 — your data, not the code
 
@@ -872,9 +871,9 @@ If your command needs protocol behaviour that none of the four operations provid
 
 ### Building the CLI, command by command
 
-This tree has been reduced to a CLI-only variant. One executable is built: `arinc_615a_operation`. Everything below is a single command, what it does, and how to tell it worked before you run the next one. What the variant excludes
+One executable is built: `arinc_615a_operation`. Everything below is a single command, what it does, and how to tell it worked before you run the next one. What the variant excludes
 
-`lib/CMakeLists.txt` now adds only `arinc_615a` and `arinc_615a_commands`; `app/CMakeLists.txt` adds only `arinc_615a_operation`. The Qt library directories are gone, and `qt_icon_resources` has been dropped from the `FetchContent` set — five dependencies remain: `helper`, `arinc_649`, `arinc_665`, `tftp`, `commands`. The `vcpkg.json` manifest no longer declares a `with-qt` feature.
+`lib/CMakeLists.txt` adds `arinc_615a` and `arinc_615a_commands`; `app/CMakeLists.txt` adds `arinc_615a_operation`. Five dependencies are fetched: `helper`, `arinc_649`, `arinc_665`, `tftp`, `commands`.
 
 The sources for `arinc_615a_download_request_file`, `arinc_615a_test_tha`, and `arinc_615a_unit_test` are still on disk under `app/` but are no longer referenced by any `add_subdirectory()`, so they will not build. §18 explains how to re-enable the request-file generator if you want it.
 

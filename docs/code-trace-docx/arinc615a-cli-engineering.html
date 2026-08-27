@@ -209,7 +209,7 @@ figcaption{font-size:13px; color:var(--muted); margin-top:9px; max-width:64ch; f
   <div class="prose">
     <p class="lede">A function-by-function trace of the command-line data loader in this repository: every function on the path from <code>main()</code> to a byte on the wire, and back up through the handler callbacks that print to the console.</p>
 
-    <p>This working copy has been reduced to a <strong>CLI-only variant</strong>: <code>app/CMakeLists.txt</code> wires in a single application and the Qt libraries have been removed from <code>lib/</code>. The table below reflects that state — see §20 for what the variant excludes and how to re-enable a target.</p>
+    <p>This repository is the command-line distribution of the tool suite: <code>app/CMakeLists.txt</code> wires in a single application. The table below reflects that state — see §20 for what it excludes and how to re-enable a target.</p>
   </div>
 
   <div class="tw">
@@ -220,7 +220,7 @@ figcaption{font-size:13px; color:var(--muted); margin-top:9px; max-width:64ch; f
         <tr><td class="m">arinc_615a_download_request_file</td><td>On disk, not wired into the build. Offline generator for the <code>.LNR</code> request file</td><td>§18</td></tr>
         <tr><td class="m">arinc_615a_test_tha</td><td>On disk, not wired into the build. Simulated target hardware</td><td>Referenced only</td></tr>
         <tr><td class="m">arinc_615a_unit_test</td><td>On disk, not wired into the build. Boost.Test suite</td><td>Out of scope</td></tr>
-        <tr><td class="m">arinc_615a_data_loader_gui</td><td>Removed from this working copy along with the Qt libraries</td><td>Out of scope</td></tr>
+        
       </tbody>
     </table>
   </div>
@@ -237,7 +237,7 @@ figcaption{font-size:13px; color:var(--muted); margin-top:9px; max-width:64ch; f
   <span class="sec-no">02 — Architecture</span>
   <h2>Six layers, one direction</h2>
   <div class="prose">
-    <p>Control flows downward through six layers on the way out and returns through registered handler callbacks on the way in. No layer calls back into the layer above it directly; the upward path is always a <code>std::function</code> or an abstract handler interface bound during setup. That inversion is what lets the same host protocol library serve both the CLI and the Qt GUI.</p>
+    <p>Control flows downward through six layers on the way out and returns through registered handler callbacks on the way in. No layer calls back into the layer above it directly; the upward path is always a <code>std::function</code> or an abstract handler interface bound during setup. That inversion is what lets the same host protocol library serve any front end built on top of it.</p>
   </div>
 
   <figure>
@@ -313,7 +313,7 @@ figcaption{font-size:13px; color:var(--muted); margin-top:9px; max-width:64ch; f
 
   <div class="prose">
     <h3>The dependency that shapes everything</h3>
-    <p>Five of this project's dependencies are pulled at configure time by <code>FetchContent</code> from <code>git.thomas-vogt.de</code> — <code>helper</code>, <code>arinc_649</code>, <code>arinc_665</code>, <code>tftp</code>, and <code>commands</code>. (<code>qt_icon_resources</code> was dropped when this tree was reduced to the CLI variant.) Two of them carry weight in the CLI path and are worth naming:</p>
+    <p>Five of this project's dependencies are pulled at configure time by <code>FetchContent</code> from <code>git.thomas-vogt.de</code> — <code>helper</code>, <code>arinc_649</code>, <code>arinc_665</code>, <code>tftp</code>, and <code>commands</code>. Two of them carry weight in the CLI path and are worth naming:</p>
     <ul class="tight">
       <li><code>commands</code> supplies <code>Commands::CommandRegistry</code> and <code>Commands::Utils_commandLineHandler</code> — the entire sub-command dispatch mechanism. It is not in this repository.</li>
       <li><code>tftp</code> supplies the generic TFTP client and server. The <code>Arinc615a::Tftp</code> namespace in this repository is a thin decorator over it, not a reimplementation.</li>
@@ -1650,7 +1650,7 @@ figcaption{font-size:13px; color:var(--muted); margin-top:9px; max-width:64ch; f
 
   <div class="note">
     <span class="lbl">There is no config file</span>
-    <p><code>Arinc615aConfiguration::fromProperties()</code> and <code>toProperties()</code> exist and read JSON keys <code>local_tftp_address</code>, <code>dlp_retries</code>, <code>tftp</code>, <code>tftp_options</code>, <code>protocol_file_logging</code> — but <strong>the CLI never calls them</strong>. They serve the GUI and the test target application. If you want a config file for the CLI, that is the hook to wire up: parse the JSON in <code>execute()</code> before <code>notify()</code> and let command-line options override it.</p>
+    <p><code>Arinc615aConfiguration::fromProperties()</code> and <code>toProperties()</code> exist and read JSON keys <code>local_tftp_address</code>, <code>dlp_retries</code>, <code>tftp</code>, <code>tftp_options</code>, <code>protocol_file_logging</code> — but <strong>the CLI never calls them</strong>. They serve the test target application. If you want a config file for the CLI, that is the hook to wire up: parse the JSON in <code>execute()</code> before <code>notify()</code> and let command-line options override it.</p>
   </div>
 
   <div class="prose">
@@ -1752,7 +1752,7 @@ figcaption{font-size:13px; color:var(--muted); margin-top:9px; max-width:64ch; f
 
   <div class="note">
     <span class="lbl">What the variant excludes</span>
-    <p><code>lib/CMakeLists.txt</code> now adds only <code>arinc_615a</code> and <code>arinc_615a_commands</code>; <code>app/CMakeLists.txt</code> adds only <code>arinc_615a_operation</code>. The Qt library directories are gone, and <code>qt_icon_resources</code> has been dropped from the <code>FetchContent</code> set — five dependencies remain: <code>helper</code>, <code>arinc_649</code>, <code>arinc_665</code>, <code>tftp</code>, <code>commands</code>. The <code>vcpkg.json</code> manifest no longer declares a <code>with-qt</code> feature.</p>
+    <p><code>lib/CMakeLists.txt</code> adds <code>arinc_615a</code> and <code>arinc_615a_commands</code>; <code>app/CMakeLists.txt</code> adds <code>arinc_615a_operation</code>. Five dependencies are fetched: <code>helper</code>, <code>arinc_649</code>, <code>arinc_665</code>, <code>tftp</code>, <code>commands</code>.</p>
     <p>The sources for <code>arinc_615a_download_request_file</code>, <code>arinc_615a_test_tha</code>, and <code>arinc_615a_unit_test</code> are still on disk under <code>app/</code> but are no longer referenced by any <code>add_subdirectory()</code>, so they will not build. §18 explains how to re-enable the request-file generator if you want it.</p>
   </div>
 
