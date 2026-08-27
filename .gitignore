@@ -37,3 +37,10 @@ symbology-style.db
 /arinc_665/
 /tftp/
 /commands/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Regenerated on every docs/code-trace-docx build
+/docs/code-trace-docx/arinc615a-cli-engineering.figured.html

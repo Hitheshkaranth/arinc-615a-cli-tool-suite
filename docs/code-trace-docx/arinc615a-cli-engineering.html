@@ -1,0 +1,2156 @@
+<title>ARINC 615A CLI Trace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+
+<style>
+:root{
+  --ground:#F4F5F7; --surface:#FFFFFF; --surface-2:#EDEFF3;
+  --ink:#161A20; --ink-2:#39424F; --muted:#5A6472;
+  --rule:#DCE0E6; --rule-2:#C3CAD4;
+  --accent:#A85D00; --accent-soft:#F6ECDD;
+  --teal:#0C6B69; --teal-soft:#E2F0EF;
+  --danger:#A6301F; --danger-soft:#F9E7E4;
+  --display:"IBM Plex Sans Condensed",-apple-system,"Segoe UI",sans-serif;
+  --body:"IBM Plex Serif",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0F1319; --surface:#161B22; --surface-2:#1D242D;
+    --ink:#E2E7ED; --ink-2:#BCC5D0; --muted:#8A94A2;
+    --rule:#242C36; --rule-2:#333D49;
+    --accent:#E9A94A; --accent-soft:#2A2113;
+    --teal:#45B3AE; --teal-soft:#122725;
+    --danger:#E0705C; --danger-soft:#2C1815;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1319; --surface:#161B22; --surface-2:#1D242D;
+  --ink:#E2E7ED; --ink-2:#BCC5D0; --muted:#8A94A2;
+  --rule:#242C36; --rule-2:#333D49;
+  --accent:#E9A94A; --accent-soft:#2A2113;
+  --teal:#45B3AE; --teal-soft:#122725;
+  --danger:#E0705C; --danger-soft:#2C1815;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--body); font-size:16px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.shell{display:grid; grid-template-columns:236px minmax(0,1fr); gap:0; max-width:1240px; margin:0 auto}
+@media (max-width:900px){.shell{grid-template-columns:minmax(0,1fr)}}
+
+/* ---- index rail ---- */
+.rail{
+  border-right:1px solid var(--rule); padding:34px 20px 60px 24px;
+  position:sticky; top:0; align-self:start; max-height:100vh; overflow-y:auto;
+}
+@media (max-width:900px){.rail{position:static; max-height:none; border-right:0; border-bottom:1px solid var(--rule)}}
+.rail-mark{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin-bottom:4px}
+.rail-title{font-family:var(--display); font-weight:700; font-size:18px; line-height:1.2; margin:0 0 22px}
+.rail nav{display:flex; flex-direction:column; gap:1px}
+.rail a{
+  font-family:var(--display); font-weight:500; font-size:13.5px; color:var(--muted);
+  text-decoration:none; padding:4px 8px 4px 0; display:flex; gap:9px; border-radius:3px;
+}
+.rail a:hover{color:var(--ink)}
+.rail a:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.rail a b{font-family:var(--mono); font-weight:500; font-size:11.5px; color:var(--rule-2); min-width:19px; font-variant-numeric:tabular-nums}
+.rail .grp{font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--rule-2); margin:18px 0 5px}
+
+/* ---- main ---- */
+main{padding:34px 44px 120px; min-width:0}
+@media (max-width:900px){main{padding:28px 20px 80px}}
+.prose{max-width:70ch}
+
+h2{
+  font-family:var(--display); font-weight:700; font-size:27px; line-height:1.18;
+  margin:0 0 6px; text-wrap:balance; letter-spacing:-.008em;
+}
+h3{font-family:var(--display); font-weight:600; font-size:19px; margin:34px 0 8px; text-wrap:balance}
+h4{font-family:var(--display); font-weight:600; font-size:15px; margin:24px 0 6px; color:var(--ink-2)}
+p{margin:0 0 14px}
+.lede{font-size:17.5px; color:var(--ink-2); max-width:66ch}
+a{color:var(--accent)}
+
+section{
+  border-top:1px solid var(--rule); padding:46px 0 8px; scroll-margin-top:16px;
+}
+section:first-of-type{border-top:0; padding-top:8px}
+.sec-no{
+  font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase;
+  color:var(--accent); margin:0 0 10px; display:block;
+}
+
+code{font-family:var(--mono); font-size:.875em; background:var(--surface-2); padding:1px 4px; border-radius:3px; word-break:break-word}
+pre{
+  font-family:var(--mono); font-size:12.5px; line-height:1.62; background:var(--surface);
+  border:1px solid var(--rule); border-left:2px solid var(--rule-2); border-radius:4px;
+  padding:13px 15px; overflow-x:auto; margin:0 0 16px;
+}
+pre code{background:none; padding:0; font-size:inherit}
+
+/* ---- function entry ---- */
+.fn{
+  background:var(--surface); border:1px solid var(--rule); border-radius:5px;
+  margin:0 0 12px; overflow:hidden;
+}
+.fn > summary{
+  list-style:none; cursor:pointer; padding:11px 14px; display:flex; gap:10px;
+  align-items:baseline; flex-wrap:wrap; border-left:2px solid var(--accent);
+}
+.fn > summary::-webkit-details-marker{display:none}
+.fn > summary:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+.fn[open] > summary{border-bottom:1px solid var(--rule)}
+.fn-sig{font-family:var(--mono); font-size:12.5px; font-weight:500; color:var(--ink); flex:1 1 auto; min-width:0}
+.fn-sig .rt{color:var(--muted)}
+.src{
+  font-family:var(--mono); font-size:10.5px; color:var(--muted); white-space:nowrap;
+  background:var(--surface-2); border-radius:3px; padding:2px 6px;
+}
+.fn-body{padding:13px 15px 4px}
+.fn-body p{margin:0 0 11px; font-size:15px}
+.fn-body > :last-child{margin-bottom:11px}
+
+/* ---- step list ---- */
+ol.steps{margin:0 0 14px; padding:0 0 0 0; list-style:none; counter-reset:s}
+ol.steps li{
+  counter-increment:s; position:relative; padding:0 0 9px 34px; font-size:15px;
+}
+ol.steps li::before{
+  content:counter(s,decimal-leading-zero); position:absolute; left:0; top:1px;
+  font-family:var(--mono); font-size:10.5px; color:var(--accent);
+  background:var(--accent-soft); border-radius:3px; padding:2px 5px; font-variant-numeric:tabular-nums;
+}
+ul.tight{margin:0 0 14px; padding-left:19px} ul.tight li{margin-bottom:5px; font-size:15px}
+
+/* ---- tables ---- */
+.tw{overflow-x:auto; margin:0 0 18px; border:1px solid var(--rule); border-radius:5px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:13.5px}
+th{
+  font-family:var(--display); font-weight:600; text-align:left; font-size:12px;
+  letter-spacing:.05em; text-transform:uppercase; color:var(--muted);
+  padding:9px 13px; border-bottom:1px solid var(--rule); white-space:nowrap;
+}
+td{padding:8px 13px; border-bottom:1px solid var(--rule); vertical-align:top; font-family:var(--body)}
+tr:last-child td{border-bottom:0}
+td.m,th.m{font-family:var(--mono); font-size:12px; font-variant-numeric:tabular-nums; white-space:nowrap}
+
+/* ---- callouts ---- */
+.note{
+  border:1px solid var(--rule); border-left:2px solid var(--teal); background:var(--surface);
+  border-radius:4px; padding:12px 15px; margin:0 0 16px; font-size:14.5px;
+}
+.note.warn{border-left-color:var(--danger)}
+.note .lbl{
+  font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase;
+  color:var(--teal); display:block; margin-bottom:4px;
+}
+.note.warn .lbl{color:var(--danger)}
+.note p:last-child{margin-bottom:0}
+
+/* ---- figures ---- */
+figure{margin:0 0 22px}
+.fw{overflow-x:auto; background:var(--surface); border:1px solid var(--rule); border-radius:5px; padding:16px}
+figure svg{display:block; max-width:100%; height:auto; color:var(--ink)}
+figcaption{font-size:13px; color:var(--muted); margin-top:9px; max-width:64ch; font-style:italic}
+.sv-l{font-family:"IBM Plex Sans Condensed",sans-serif; font-size:12px; font-weight:600}
+.sv-s{font-family:"IBM Plex Mono",monospace; font-size:10.5px}
+.sv-m{font-family:"IBM Plex Mono",monospace; font-size:11px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<div class="shell">
+<aside class="rail">
+  <div class="rail-mark">ARINC 615A-4</div>
+  <p class="rail-title">CLI Data Loader<br>Engineering Trace</p>
+  <nav>
+    <div class="grp">Orientation</div>
+    <a href="#s1"><b>01</b>Scope</a>
+    <a href="#s2"><b>02</b>Architecture</a>
+    <a href="#s3"><b>03</b>Concurrency</a>
+    <div class="grp">Entry &amp; dispatch</div>
+    <a href="#s4"><b>04</b>main()</a>
+    <a href="#s5"><b>05</b>Registration</a>
+    <a href="#s6"><b>06</b>Command catalogue</a>
+    <a href="#s7"><b>07</b>Command skeleton</a>
+    <div class="grp">Operations</div>
+    <a href="#s8"><b>08</b>FIND query</a>
+    <a href="#s9"><b>09</b>Operation base</a>
+    <a href="#s10"><b>10</b>Information</a>
+    <a href="#s11"><b>11</b>Upload</a>
+    <a href="#s12"><b>12</b>Media download</a>
+    <a href="#s13"><b>13</b>Operator download</a>
+    <div class="grp">Wire layers</div>
+    <a href="#s14"><b>14</b>Protocol files</a>
+    <a href="#s15"><b>15</b>TFTP layer</a>
+    <a href="#s16"><b>16</b>Timeout &amp; abort</a>
+    <a href="#s17"><b>17</b>Status codes</a>
+    <div class="grp">Practice</div>
+    <a href="#s18"><b>18</b>DRF generator</a>
+    <a href="#s19"><b>19</b>Customisation</a>
+    <a href="#s20"><b>20</b>Building</a>
+    <a href="#s21"><b>21</b>Running</a>
+    <div class="grp">Closing</div>
+    <a href="#s22"><b>22</b>Findings</a>
+    <a href="#s23"><b>23</b>References</a>
+  </nav>
+</aside>
+
+<main>
+
+<section id="s1">
+  <span class="sec-no">01 — Scope</span>
+  <h2>What this document covers</h2>
+  <div class="prose">
+    <p class="lede">A function-by-function trace of the command-line data loader in this repository: every function on the path from <code>main()</code> to a byte on the wire, and back up through the handler callbacks that print to the console.</p>
+
+    <p>This working copy has been reduced to a <strong>CLI-only variant</strong>: <code>app/CMakeLists.txt</code> wires in a single application and the Qt libraries have been removed from <code>lib/</code>. The table below reflects that state — see §20 for what the variant excludes and how to re-enable a target.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Target</th><th>Role</th><th>Covered</th></tr></thead>
+      <tbody>
+        <tr><td class="m">arinc_615a_operation</td><td><strong>Built.</strong> Host data loader — nine sub-commands, all protocol operations</td><td>§4–§17</td></tr>
+        <tr><td class="m">arinc_615a_download_request_file</td><td>On disk, not wired into the build. Offline generator for the <code>.LNR</code> request file</td><td>§18</td></tr>
+        <tr><td class="m">arinc_615a_test_tha</td><td>On disk, not wired into the build. Simulated target hardware</td><td>Referenced only</td></tr>
+        <tr><td class="m">arinc_615a_unit_test</td><td>On disk, not wired into the build. Boost.Test suite</td><td>Out of scope</td></tr>
+        <tr><td class="m">arinc_615a_data_loader_gui</td><td>Removed from this working copy along with the Qt libraries</td><td>Out of scope</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <h3>How to read it</h3>
+    <p>Sections 4 through 7 are a linear walkthrough of process startup and command dispatch — read them in order. Sections 8 through 13 are one per protocol operation and are independent of each other; §9 is shared machinery that §10–§13 all build on, so read §9 before any of them. Sections 14 through 17 are the layers underneath, and can be consulted as reference.</p>
+    <p>Every function block carries its source location as <code>file:line</code>. Line numbers refer to the tree as it stands in this working copy. Collapsed blocks expand on click.</p>
+    <p><strong>The target side is not the subject here.</strong> Everything below describes the <em>host</em> data loader — the machine that initiates. Where the target's behaviour matters to the host's state machine, it is described as an observed stimulus, not as an implementation.</p>
+  </div>
+</section>
+
+<section id="s2">
+  <span class="sec-no">02 — Architecture</span>
+  <h2>Six layers, one direction</h2>
+  <div class="prose">
+    <p>Control flows downward through six layers on the way out and returns through registered handler callbacks on the way in. No layer calls back into the layer above it directly; the upward path is always a <code>std::function</code> or an abstract handler interface bound during setup. That inversion is what lets the same host protocol library serve both the CLI and the Qt GUI.</p>
+  </div>
+
+  <figure>
+    <div class="fw">
+      <svg viewBox="0 0 720 400" role="img" aria-label="Six-layer stack from the CLI executable down to Boost.Asio, with a return path for handler callbacks">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+          <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#A85D00"/>
+          </marker>
+        </defs>
+
+        <!-- layer boxes -->
+        <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.85">
+          <rect x="120" y="14"  width="330" height="46" rx="3"/>
+          <rect x="120" y="76"  width="330" height="46" rx="3"/>
+          <rect x="120" y="138" width="330" height="46" rx="3"/>
+          <rect x="120" y="200" width="330" height="46" rx="3"/>
+          <rect x="120" y="262" width="330" height="46" rx="3"/>
+        </g>
+        <rect x="120" y="324" width="330" height="46" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3" opacity="0.55"/>
+
+        <g fill="currentColor">
+          <text class="sv-l" x="136" y="34">CLI executable</text>
+          <text class="sv-s" x="136" y="50" opacity="0.7">app/arinc_615a_operation — main, signals</text>
+
+          <text class="sv-l" x="136" y="96">Command layer</text>
+          <text class="sv-s" x="136" y="112" opacity="0.7">lib/arinc_615a_commands — 9 commands, options, console</text>
+
+          <text class="sv-l" x="136" y="158">Host protocol</text>
+          <text class="sv-s" x="136" y="174" opacity="0.7">lib/arinc_615a/host — Protocol, OperationImpl ×4</text>
+
+          <text class="sv-l" x="136" y="220">Protocol files</text>
+          <text class="sv-s" x="136" y="236" opacity="0.7">lib/arinc_615a/files — LCI LCL LCS LUR LUS LNR LNS…</text>
+
+          <text class="sv-l" x="136" y="282">615A TFTP shim</text>
+          <text class="sv-s" x="136" y="298" opacity="0.7">lib/arinc_615a/tftp — options, WAIT/ABORT, DLP retry</text>
+
+          <text class="sv-l" x="136" y="344" opacity="0.7">External</text>
+          <text class="sv-s" x="136" y="360" opacity="0.6">tftp · arinc_665 · arinc_649 · Boost.Asio · spdlog</text>
+        </g>
+
+        <!-- downward call arrows -->
+        <g stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)" opacity="0.75">
+          <line x1="200" y1="60"  x2="200" y2="72"/>
+          <line x1="200" y1="122" x2="200" y2="134"/>
+          <line x1="200" y1="184" x2="200" y2="196"/>
+          <line x1="200" y1="246" x2="200" y2="258"/>
+          <line x1="200" y1="308" x2="200" y2="320"/>
+        </g>
+        <text class="sv-s" x="210" y="70" fill="currentColor" opacity="0.6">calls</text>
+
+        <!-- upward callback path -->
+        <path d="M450 350 L495 350 L495 40 L452 40" fill="none" stroke="#A85D00" stroke-width="1.3" marker-end="url(#arA)"/>
+        <text class="sv-s" x="503" y="186" fill="#A85D00">handler callbacks</text>
+        <text class="sv-s" x="503" y="200" fill="#A85D00" opacity="0.75">status · finished ·</text>
+        <text class="sv-s" x="503" y="213" fill="#A85D00" opacity="0.75">fileRequest</text>
+
+        <!-- left annotations -->
+        <g fill="currentColor" opacity="0.55">
+          <text class="sv-s" x="14" y="40">process</text>
+          <text class="sv-s" x="14" y="102">console I/O</text>
+          <text class="sv-s" x="14" y="164">state machine</text>
+          <text class="sv-s" x="14" y="226">codec</text>
+          <text class="sv-s" x="14" y="288">transport</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Calls descend the stack; results climb it only through handlers bound at setup time. The command layer implements the host layer's handler interfaces, which is why a command object <em>is</em> its own callback sink.</figcaption>
+  </figure>
+
+  <div class="prose">
+    <h3>The dependency that shapes everything</h3>
+    <p>Five of this project's dependencies are pulled at configure time by <code>FetchContent</code> from <code>git.thomas-vogt.de</code> — <code>helper</code>, <code>arinc_649</code>, <code>arinc_665</code>, <code>tftp</code>, and <code>commands</code>. (<code>qt_icon_resources</code> was dropped when this tree was reduced to the CLI variant.) Two of them carry weight in the CLI path and are worth naming:</p>
+    <ul class="tight">
+      <li><code>commands</code> supplies <code>Commands::CommandRegistry</code> and <code>Commands::Utils_commandLineHandler</code> — the entire sub-command dispatch mechanism. It is not in this repository.</li>
+      <li><code>tftp</code> supplies the generic TFTP client and server. The <code>Arinc615a::Tftp</code> namespace in this repository is a thin decorator over it, not a reimplementation.</li>
+    </ul>
+    <p><code>arinc_665</code> matters for upload only: it resolves load headers and media sets. <code>arinc_649</code> supplies <code>CheckValue</code> and the check-value generators used for the checksum TFTP option.</p>
+  </div>
+</section>
+
+<section id="s3">
+  <span class="sec-no">03 — Concurrency</span>
+  <h2>Two threads and a latch</h2>
+  <div class="prose">
+    <p>The process runs exactly two threads of interest. The main thread parses the command line and then <em>blocks</em>; a single <code>std::jthread</code> runs the Boost.Asio <code>io_context</code> and executes every protocol handler. All protocol state lives on the I/O thread and is never touched concurrently, because the main thread does nothing but wait once the operation starts.</p>
+    <p>The handshake between them is a <code>std::latch{1}</code> named <code>done</code>, a member of each command object. The command's <code>finished()</code> callback — invoked on the I/O thread — counts it down; the main thread's <code>done.wait()</code> returns.</p>
+  </div>
+
+  <figure>
+    <div class="fw">
+      <svg viewBox="0 0 700 336" role="img" aria-label="Sequence showing the main thread blocking on a latch while the io_context thread executes protocol handlers">
+        <defs>
+          <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+          <marker id="ar2A" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#A85D00"/>
+          </marker>
+        </defs>
+
+        <!-- headers -->
+        <rect x="60" y="10" width="180" height="26" rx="3" fill="none" stroke="currentColor" opacity="0.85"/>
+        <rect x="400" y="10" width="200" height="26" rx="3" fill="none" stroke="currentColor" opacity="0.85"/>
+        <text class="sv-l" x="150" y="28" text-anchor="middle" fill="currentColor">main thread</text>
+        <text class="sv-l" x="500" y="28" text-anchor="middle" fill="currentColor">ioRunner (jthread)</text>
+
+        <!-- lifelines -->
+        <line x1="150" y1="36" x2="150" y2="300" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.5"/>
+        <line x1="500" y1="36" x2="500" y2="300" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" opacity="0.5"/>
+
+        <!-- activation bars -->
+        <rect x="144" y="48" width="12" height="66" fill="currentColor" opacity="0.14"/>
+        <rect x="494" y="90" width="12" height="180" fill="currentColor" opacity="0.14"/>
+        <rect x="144" y="270" width="12" height="26" fill="currentColor" opacity="0.14"/>
+
+        <!-- blocked region -->
+        <rect x="140" y="118" width="20" height="150" fill="#A85D00" opacity="0.13"/>
+        <text class="sv-s" x="76" y="196" fill="#A85D00">blocked</text>
+        <text class="sv-s" x="76" y="209" fill="#A85D00" opacity="0.8">done.wait()</text>
+
+        <g fill="currentColor">
+          <text class="sv-m" x="150" y="60" text-anchor="middle">registerCommands()</text>
+          <text class="sv-m" x="150" y="80" text-anchor="middle">execute() — parse options</text>
+        </g>
+
+        <!-- start arrow -->
+        <line x1="158" y1="96" x2="490" y2="96" stroke="currentColor" stroke-width="1.2" marker-end="url(#ar2)"/>
+        <text class="sv-s" x="324" y="90" text-anchor="middle" fill="currentColor">operation-&gt;start()</text>
+
+        <!-- handler ticks on io thread -->
+        <g fill="currentColor">
+          <text class="sv-m" x="516" y="124">initialisationFileCompleted()</text>
+          <text class="sv-m" x="516" y="150">statusFileCompleted()</text>
+          <text class="sv-m" x="516" y="176">listFileCompleted()</text>
+          <text class="sv-m" x="516" y="202">→ handler.targetInformation()</text>
+          <text class="sv-m" x="516" y="228">→ handler.status()</text>
+        </g>
+        <g stroke="currentColor" stroke-width="1" opacity="0.45">
+          <line x1="500" y1="128" x2="510" y2="128"/>
+          <line x1="500" y1="154" x2="510" y2="154"/>
+          <line x1="500" y1="180" x2="510" y2="180"/>
+        </g>
+
+        <!-- countdown arrow -->
+        <line x1="492" y1="262" x2="162" y2="262" stroke="#A85D00" stroke-width="1.3" marker-end="url(#ar2A)"/>
+        <text class="sv-s" x="330" y="256" text-anchor="middle" fill="#A85D00">finished() → done.count_down()</text>
+
+        <text class="sv-m" x="150" y="290" text-anchor="middle" fill="currentColor">print TFTP statistics</text>
+
+        <text class="sv-s" x="60" y="322" fill="currentColor" opacity="0.6">All protocol state is confined to the right-hand lifeline.</text>
+      </svg>
+    </div>
+    <figcaption>Once <code>start()</code> hands off, the main thread contributes nothing until the latch releases. Every box on the right runs on the single I/O thread, serialised by the <code>io_context</code>.</figcaption>
+  </figure>
+
+  <div class="note warn">
+    <span class="lbl">Consequence</span>
+    <p>Because <code>done</code> is a <code>std::latch</code> initialised to 1, a second call to the command's <code>finished()</code> decrements it below zero, which is undefined behaviour. Nothing in <code>OperationImpl::finished()</code> guards against being called twice. §19 documents two concrete paths that reach it twice.</p>
+  </div>
+
+  <div class="prose">
+    <h3>Signal handling</h3>
+    <p>SIGINT and SIGTERM are handled asynchronously on the same <code>io_context</code> via <code>boost::asio::signal_set</code>. The handler is re-armed after each delivery, and uses a function-local <code>static bool abortIndicator</code> to escalate: the first signal raises <code>abortSignal</code> (graceful protocol abort), any subsequent signal raises <code>terminateSignal</code> (immediate teardown). Both are <code>boost::signals2::signal&lt;void()&gt;</code>, and each command connects its own operation's <code>abort</code>/<code>terminate</code> to them with a <code>scoped_connection</code> so the wiring dies with the command invocation.</p>
+  </div>
+</section>
+
+
+<section id="s4">
+  <span class="sec-no">04 — Entry point</span>
+  <h2>main(), line by line</h2>
+  <div class="prose">
+    <p>The entry point is 74 lines with three nested exception frames. Its job is narrow: set log levels, build a registry, start an I/O thread, hand the argument vector to the dispatcher, then unwind cleanly.</p>
+  </div>
+
+  <details class="fn" open>
+    <summary><span class="fn-sig"><span class="rt">int</span> main( int argc, char *argv[] )</span><span class="src">arinc_615a_operation.cpp:76</span></summary>
+    <div class="fn-body">
+      <p>Wrapped in a function-try-block whose handler prints <code>"Very bad exception"</code> — this catches throws from the initialisation of function-local statics and from the inner handlers themselves.</p>
+      <ol class="steps">
+        <li><strong>Log levels.</strong> Nine separate <code>setLogLevel()</code> calls, one per library — <code>spdlog</code>, <code>Arinc615aCommands</code>, <code>Arinc615a</code>, <code>Tftp</code>, <code>Arinc665Commands</code>, <code>Arinc665</code>, <code>Arinc649</code>, <code>Commands</code>, <code>Helper</code>. Each library owns a private spdlog level; setting one does not set the others. All start at <code>warn</code>.</li>
+        <li><strong>Banner.</strong> Prints <code>"ARINC 615A Operation - {version}"</code> from <code>Arinc615a::Version::VersionInformation</code>, a generated header.</li>
+        <li><strong>Registry.</strong> <code>Commands::CommandRegistry::instance()</code> returns a shared pointer to the command table.</li>
+        <li><strong>I/O primitives.</strong> Constructs <code>io_context</code>, a <code>signal_set</code> bound to SIGINT and SIGTERM, and the two <code>AbortTerminateSignal</code> objects.</li>
+        <li><strong>Command registration.</strong> <code>Arinc615aCommands::registerCommands(...)</code> then <code>Arinc665Commands::registerCommands(registry)</code>. The second call adds the ARINC 665 media-set management commands that appear in the same CLI.</li>
+        <li><strong>Arm signals.</strong> <code>signals.async_wait(...)</code> with a <code>bind_front</code> onto <code>signalHandler</code>, capturing the signal set by reference so the handler can re-arm itself.</li>
+        <li><strong>Start I/O.</strong> A <code>std::jthread</code> running <code>ioContext.run()</code>. Note there is no <code>work_guard</code> — <code>run()</code> stays alive only because the <code>signal_set</code> has a pending async operation.</li>
+        <li><strong>Dispatch.</strong> <code>Commands::Utils_commandLineHandler( registry )( argc, argv )</code> — blocking, returns the process exit code.</li>
+        <li><strong>Teardown.</strong> <code>signals.cancel()</code>, <code>ioContext.stop()</code>, <code>ioRunner.join()</code>, then <code>return result</code>.</li>
+      </ol>
+      <p>The inner <code>try</code> has three handlers: <code>boost::exception</code> and <code>std::exception</code> both print via <code>boost::diagnostic_information()</code>, and a catch-all prints <code>"Unknown exception occurred"</code>. All three return <code>EXIT_FAILURE</code>.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">static void</span> signalHandler( signal_set&amp;, abortSignal, terminateSignal, error_code, int )</span><span class="src">arinc_615a_operation.cpp:151</span></summary>
+    <div class="fn-body">
+      <p>Returns immediately if the error code is <code>operation_aborted</code> — that is the normal teardown path from <code>signals.cancel()</code>. Otherwise it logs which signal arrived, <strong>re-arms itself</strong> with another <code>async_wait</code>, and then escalates.</p>
+      <p>Escalation uses a function-local <code>static bool abortIndicator{ false }</code>. First signal: prints <code>"Abort request from user"</code>, calls <code>abortSignal()</code>, sets the flag. Every subsequent signal: prints <code>"Terminate request from user"</code>, calls <code>terminateSignal()</code>.</p>
+      <div class="note">
+        <span class="lbl">Design intent</span>
+        <p>Abort is <em>protocol-level</em>: the host stops initiating and sends an ARINC 615A ABORT error message the next time the target opens a status transfer, letting the target close out cleanly with a final status file. Terminate is <em>immediate</em>: it fabricates a final status locally and releases the latch. One Ctrl-C is polite; two is not.</p>
+      </div>
+    </div>
+  </details>
+</section>
+
+<section id="s5">
+  <span class="sec-no">05 — Registration</span>
+  <h2>How a name becomes a handler</h2>
+  <div class="prose">
+    <p>Registration is a two-level fan-out. <code>Arinc615aCommands::registerCommands()</code> delegates to two namespace-level functions, each of which constructs command objects and binds two member functions per command into the registry.</p>
+  </div>
+
+  <details class="fn" open>
+    <summary><span class="fn-sig"><span class="rt">void</span> Arinc615aCommands::registerCommands( registry, ioContext, abortSignal, terminateSignal )</span><span class="src">Arinc615aCommands.cpp:23</span></summary>
+    <div class="fn-body">
+      <p>Two calls, nothing else: <code>Targets::registerCommands(...)</code> for the discovery commands and <code>Operations::registerCommands(...)</code> for the protocol operations. All four arguments are forwarded unchanged.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> Targets::registerCommands( … )</span><span class="src">targets/Targets.cpp:22</span></summary>
+    <div class="fn-body">
+      <p>Constructs <code>FindQueryCommand</code> and <code>ListTargetsCommand</code> as <code>shared_ptr</code>s, then registers each with <code>registry-&gt;command( name, description, executeFn, helpFn )</code>. The two function objects are <code>std::bind_front( &amp;T::execute, ptr )</code> and <code>std::bind_front( &amp;T::help, ptr )</code> — the <code>shared_ptr</code> is copied into the binder, so the command object outlives this function and lives as long as the registry.</p>
+      <p>Registered names: <code>Find</code>, <code>Targets</code>.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> Operations::registerCommands( … )</span><span class="src">operations/Operations.cpp:27</span></summary>
+    <div class="fn-body">
+      <p>The same pattern, seven times over. Registered names in order: <code>Information</code>, <code>Upload</code>, <code>AdhocUpload</code>, <code>UploadLoads</code>, <code>BatchUpload</code>, <code>MedDownload</code>, <code>OpDownload</code>.</p>
+      <p>Every command object is constructed <em>eagerly</em>, at startup, whether or not it will be used. Each constructor builds a full <code>boost::program_options::options_description</code>. That is why running any sub-command pays the cost of building all nine option tables.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">shared_ptr&lt;option_description&gt;</span> Arinc615aCommands::targetAddress( address*, bool defaultIsBroadcast )</span><span class="src">Arinc615aCommands.cpp:34</span></summary>
+    <div class="fn-body">
+      <p>Factory for the shared <code>--target-address,-a</code> option. Builds a <code>value_semantic</code> bound to the caller's address variable, marks it <code>required()</code>, and — when <code>defaultIsBroadcast</code> is true — defaults it to <code>address_v4::broadcast()</code>. Only <code>FindQueryCommand</code> passes <code>true</code>.</p>
+      <p>The other commands do <em>not</em> use this factory; they declare <code>target-address</code> inline and <strong>without</strong> <code>required()</code>, because the address may instead be resolved from a targets-list JSON file. See §7.</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>The dispatcher itself</h3>
+    <p><code>Commands::Utils_commandLineHandler()</code> lives in the external <code>commands</code> dependency and is not part of this repository. What it does is inferable from the registry API and the documentation: it reads a command-selection argument, looks the name up in the registry, and invokes the bound <code>execute</code> with the remaining arguments as a <code>Commands::Parameters</code> (a string vector). <code>--help</code> routes to the bound <code>help</code> instead.</p>
+    <div class="note warn">
+      <span class="lbl">Documentation conflict</span>
+      <p>The repository disagrees with itself on the selection flag. <code>app/arinc_615a_operation/arinc_615a_operation.adoc</code> documents <code>-c|--command=&lt;Name&gt;</code>; every manpage under <code>doc/arinc_615a_manpage/</code> documents <code>--operation=&lt;Name&gt;</code>. Only one can be right, and the deciding code is in the fetched <code>commands</code> library. Confirm against <code>--help</code> on your built binary before scripting around either form — §21 shows how.</p>
+    </div>
+  </div>
+</section>
+
+<section id="s6">
+  <span class="sec-no">06 — Catalogue</span>
+  <h2>The nine commands</h2>
+  <div class="prose">
+    <p>Seven perform protocol operations against a target; two are local utilities. The <em>Initiates</em> column names the protocol file the host reads first, which is what actually selects the operation on the target side.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Name</th><th>Class</th><th class="m">Initiates</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td class="m">Find</td><td class="m">FindQueryCommand</td><td class="m">UDP 1001</td><td>Broadcast discovery of targets on the network</td></tr>
+        <tr><td class="m">Targets</td><td class="m">ListTargetsCommand</td><td class="m">—</td><td>Reads a saved targets JSON and prints it; no network</td></tr>
+        <tr><td class="m">Information</td><td class="m">InformationOperationCommand</td><td class="m">.LCI</td><td>Reads the Load Configuration List — part numbers, serials</td></tr>
+        <tr><td class="m">Upload</td><td class="m">UploadOperationCommand</td><td class="m">.LUI</td><td>Uploads loads from a registered ARINC 665 media set manager</td></tr>
+        <tr><td class="m">AdhocUpload</td><td class="m">AdhocUploadOperationCommand</td><td class="m">.LUI</td><td>Uploads from raw media source directories, no manager needed</td></tr>
+        <tr><td class="m">UploadLoads</td><td class="m">UploadLoadsOperationCommand</td><td class="m">.LUI</td><td>Uploads loads addressed by load-header file path</td></tr>
+        <tr><td class="m">BatchUpload</td><td class="m">BatchUploadOperationCommand</td><td class="m">.LUI</td><td>Drives an ARINC 665 batch file across multiple targets</td></tr>
+        <tr><td class="m">MedDownload</td><td class="m">MediaDefinedDownloadOperationCommand</td><td class="m">.LND</td><td>Download where the host names the files it wants</td></tr>
+        <tr><td class="m">OpDownload</td><td class="m">OperatorDefinedDownloadOperationCommand</td><td class="m">.LNO</td><td>Download where the target advertises a list first</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="prose">
+    <p>The <code>Arinc665Commands::registerCommands()</code> call in <code>main()</code> adds more names to the same binary — <code>Create</code>, <code>ImportMediaSet</code>, <code>ImportMediaSetXml</code>, <code>ListBatches</code>, <code>ListLoads</code>, <code>ListMediaSets</code>, <code>RemoveMediaSet</code> — which manage the media set store that <code>Upload</code> and <code>BatchUpload</code> read from. They belong to the <code>arinc_665</code> dependency and are outside this document.</p>
+  </div>
+</section>
+
+<section id="s7">
+  <span class="sec-no">07 — Skeleton</span>
+  <h2>The shape every command shares</h2>
+  <div class="prose">
+    <p>All seven protocol commands are built to one template. Learning it once means §10 through §13 only have to describe what differs.</p>
+  </div>
+
+  <h3>Constructor — build the option table</h3>
+  <div class="prose">
+    <p>Each constructor stores references to <code>ioContext</code>, <code>abortSignal</code>, <code>terminateSignal</code>, then assembles <code>optionsDescriptionV</code> in a fixed order:</p>
+    <ol class="steps">
+      <li><code>--log-level,-l</code> with a <code>notifier</code> lambda that calls <code>setLogLevel</code> on every library at once. This is the only way to raise verbosity across all layers from the command line.</li>
+      <li><code>optionsDescriptionV.add( configurationV.options() )</code> — splices in the whole <code>Arinc615aConfiguration</code> option group, which itself splices in the TFTP and TFTP-option groups. §19 lists the fields these expose.</li>
+      <li>Target addressing: <code>--target-address,-a</code>, <code>--targets-list,-l</code>, <code>--target-id,-i</code> (required).</li>
+      <li><code>--dlp-timeout</code>, defaulting to <code>DefaultArinc615aDlpTimeout</code> = 13 s, with a notifier that converts the integer to <code>std::chrono::seconds</code>.</li>
+      <li><code>--port-option</code>, a <code>bool_switch</code> enabling the ARINC 615A-3 Port Option.</li>
+      <li>Command-specific options — media set paths, load headers, download directories.</li>
+    </ol>
+    <div class="note warn">
+      <span class="lbl">Confirmed defect — affects all nine commands</span>
+      <p>The short flag <code>-l</code> is declared twice in every command: once for <code>log-level,l</code> and once for <code>targets-list,l</code>. Eighteen sites across nine files, e.g. <code>InformationOperationCommand.cpp:58</code> and <code>:80</code>. Boost.Program_options cannot disambiguate; <code>-l</code> is unusable and the long forms must be spelled out. Fix by renaming the second to a free letter — <code>targets-list,T</code> is unclaimed. See §22.</p>
+    </div>
+  </div>
+
+  <h3>execute() — seven steps</h3>
+  <div class="prose">
+    <ol class="steps">
+      <li><strong>Parse.</strong> <code>command_line_parser( parameters ).options( optionsDescriptionV ).run()</code> into a <code>variables_map</code>, then <code>notify()</code> to fire the notifiers and enforce <code>required()</code>.</li>
+      <li><strong>Resolve the address.</strong> If <code>--targets-list</code> was given, read the JSON with <code>read_json</code>, convert it with <code>TargetInformation::targetsAddressInformation()</code>, index it by Target ID via <code>TargetsAddressInformationMap_fromTargetsAddressInformation()</code>, and look up <code>targetIdV</code>. A hit overwrites <code>targetAddressV</code>. A miss leaves whatever <code>--target-address</code> supplied.</li>
+      <li><strong>Guard.</strong> If <code>targetAddressV.is_unspecified()</code>, throw <code>program_options::error{ "Target IP address invalid, not provided, or not in target list." }</code>.</li>
+      <li><strong>Build the operation.</strong> <code>Protocol::instance( ioContextV )</code>, then the matching factory method with a designated-initialiser configuration struct carrying <code>dataLoaderConfiguration</code>, <code>handler = *this</code>, <code>targetAddress</code>, <code>targetId</code>, <code>dlpTimeout</code>, <code>portOption</code>.</li>
+      <li><strong>Wire signals.</strong> Two <code>boost::signals2::scoped_connection</code> objects bind <code>abort</code> and <code>terminate</code> with <code>AbortReason::Operator</code> pre-bound. They disconnect when <code>execute()</code> returns.</li>
+      <li><strong>Run and block.</strong> <code>operationV-&gt;start()</code>, then <code>done.wait()</code>.</li>
+      <li><strong>Report.</strong> Print <code>Tftp::Packets::PacketStatistic::globalReceive()</code> and <code>globalTransmit()</code>.</li>
+    </ol>
+    <p>The catch chain re-throws <code>program_options::error</code> so the dispatcher can print usage, and swallows everything else after printing to <code>stderr</code>. <strong>Note the consequence:</strong> a failed operation still returns success unless the parse failed — the process exit code does not reflect protocol outcome. If you are scripting these commands, parse the printed final status code instead.</p>
+  </div>
+
+  <h3>The handler interface</h3>
+  <div class="prose">
+    <p>Each command privately inherits the matching handler interface — <code>InformationOperationHandler</code>, <code>UploadOperationHandler</code>, and so on — and passes <code>*this</code> as the handler. The overrides are the console output layer. All of them run on the I/O thread.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th class="m">Override</th><th>When it fires</th><th>Present on</th></tr></thead>
+      <tbody>
+        <tr><td class="m">initialisationDeferred(s)</td><td>Target answered the init read with a WAIT error</td><td>all operations</td></tr>
+        <tr><td class="m">initialisationResponse(r)</td><td>Init file decoded; carries accept / deny / unsupported</td><td>all operations</td></tr>
+        <tr><td class="m">status(s)</td><td>Each status file the target writes to the host</td><td>all operations</td></tr>
+        <tr><td class="m">finished(code, desc)</td><td>Terminal — counts down the latch</td><td>all operations</td></tr>
+        <tr><td class="m">targetInformation(t, ok)</td><td>Load Configuration List decoded</td><td>Information</td></tr>
+        <tr><td class="m">fileRequest(…)</td><td>Target asks for a data file</td><td>Upload, both downloads</td></tr>
+        <tr><td class="m">downloadingList(files)</td><td>Target advertised its downloadable files</td><td>OpDownload</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s8">
+  <span class="sec-no">08 — FIND</span>
+  <h2>Discovery: one broadcast, N answers</h2>
+  <div class="prose">
+    <p>FIND is the only operation that does not use TFTP. It is a single UDP broadcast on port 1001 followed by a fixed listening window, default three seconds. Every target that answers is printed and optionally appended to a JSON file that the other commands can then use to resolve Target IDs to addresses.</p>
+  </div>
+
+  <h3>Packet format</h3>
+  <figure>
+    <div class="fw">
+      <svg viewBox="0 0 660 200" role="img" aria-label="Byte layout of the FIND information request and information answer packets">
+        <g fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="14" y="34" width="86" height="34" rx="2"/>
+          <rect x="100" y="34" width="60" height="34" rx="2"/>
+          <rect x="160" y="34" width="52" height="34" rx="2"/>
+        </g>
+        <g fill="currentColor">
+          <text class="sv-s" x="14" y="24" opacity="0.75">Information Request (IRQ) — 4 bytes, fixed</text>
+          <text class="sv-m" x="57" y="55" text-anchor="middle">0x0001</text>
+          <text class="sv-m" x="130" y="55" text-anchor="middle">0x00</text>
+          <text class="sv-m" x="186" y="55" text-anchor="middle">0x10</text>
+          <text class="sv-s" x="57" y="82" text-anchor="middle" opacity="0.6">opcode</text>
+          <text class="sv-s" x="130" y="82" text-anchor="middle" opacity="0.6">empty str</text>
+          <text class="sv-s" x="186" y="82" text-anchor="middle" opacity="0.6">pkt term</text>
+        </g>
+
+        <g fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="14" y="126" width="86" height="34" rx="2"/>
+          <rect x="100" y="126" width="96" height="34" rx="2"/>
+          <rect x="196" y="126" width="96" height="34" rx="2"/>
+          <rect x="292" y="126" width="96" height="34" rx="2"/>
+          <rect x="388" y="126" width="96" height="34" rx="2"/>
+          <rect x="484" y="126" width="110" height="34" rx="2"/>
+          <rect x="594" y="126" width="52" height="34" rx="2"/>
+        </g>
+        <g fill="currentColor">
+          <text class="sv-s" x="14" y="116" opacity="0.75">Information Answer (IAN) — variable; five NUL-terminated strings</text>
+          <text class="sv-m" x="57" y="147" text-anchor="middle">0x0002</text>
+          <text class="sv-s" x="148" y="147" text-anchor="middle">THW ID</text>
+          <text class="sv-s" x="244" y="147" text-anchor="middle">type name</text>
+          <text class="sv-s" x="340" y="147" text-anchor="middle">position</text>
+          <text class="sv-s" x="436" y="147" text-anchor="middle">literal name</text>
+          <text class="sv-s" x="539" y="147" text-anchor="middle">mfr code</text>
+          <text class="sv-m" x="620" y="147" text-anchor="middle">0x10</text>
+          <text class="sv-s" x="57" y="174" text-anchor="middle" opacity="0.6">opcode</text>
+          <text class="sv-s" x="340" y="174" text-anchor="middle" opacity="0.6">each terminated by 0x00</text>
+          <text class="sv-s" x="620" y="174" text-anchor="middle" opacity="0.6">pkt term</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Both packet forms carry a 16-bit opcode, one or more NUL-terminated strings, and a single <code>0x10</code> packet terminator. Constants live at <code>find/packets/Packet.hpp:72–78</code>; the parameter order is fixed by the <code>ParameterList</code> enum at <code>find/packets/Packets.hpp:58</code>.</figcaption>
+  </figure>
+
+  <h3>Call sequence</h3>
+
+  <details class="fn" open>
+    <summary><span class="fn-sig"><span class="rt">void</span> FindQueryCommand::execute( const Commands::Parameters&amp; )</span><span class="src">targets/FindQueryCommand.cpp:84</span></summary>
+    <div class="fn-body">
+      <p>Diverges from the §7 skeleton because there is no Target ID and no host TFTP server.</p>
+      <ol class="steps">
+        <li>Parse options into a <code>variables_map</code> and <code>notify()</code>.</li>
+        <li><code>Find::Clients::Client::instance( ioContextV )</code> then <code>client-&gt;query()</code> — a <code>ClientImpl</code> that exists only to hand back a <code>QueryImpl</code>.</li>
+        <li>Connect <em>both</em> abort and terminate signals to the same slot, <code>Query::abort</code>. FIND has no graceful mode — the distinction collapses.</li>
+        <li>Configure by fluent chain: <code>responseHandler</code>, <code>completionHandler</code>, <code>localAddress</code>, <code>remoteAddress</code>, <code>port</code>, <code>dynamicLocalPort</code>, <code>timeout</code>.</li>
+        <li><code>query-&gt;start()</code>, then <code>done.wait()</code>.</li>
+        <li>If <code>--targets-list</code> was given and at least one target answered, serialise <code>targetsV</code> with <code>write_json</code>.</li>
+      </ol>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> QueryImpl::start()</span><span class="src">find/clients/implementation/QueryImpl.cpp:83</span></summary>
+    <div class="fn-body">
+      <p>Opens the UDP socket, sets <code>SO_BROADCAST</code>, and binds to <code>localAddressV</code>. The local port is <code>0</code> when <code>--dynamic-port</code> is set, otherwise the same 1001 as the destination — binding the well-known port locally is what lets a target reply to a fixed source port.</p>
+      <p>Then, in order: <code>send( remote, Packet{ Opcode::InformationRequest, 1U } )</code> — a packet with exactly one empty parameter, which encodes to the four fixed bytes above; <code>receive()</code> to arm the first async read; <code>timerV.expires_after( timeoutV )</code> and <code>async_wait</code> onto <code>timerHandler</code>.</p>
+      <p>A <code>boost::system::system_error</code> from any socket call invokes the completion handler and rethrows as <code>FindClientException</code> — so a bind failure still releases the latch rather than hanging the CLI.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> QueryImpl::receiveHandler( const error_code&amp;, size_t bytesTransferred )</span><span class="src">find/clients/implementation/QueryImpl.cpp:203</span></summary>
+    <div class="fn-body">
+      <p>Returns silently on <code>operation_aborted</code>. Logs and continues on any other error. On success, forwards the received span to <code>PacketHandler::packet()</code>, then <strong>unconditionally re-arms</strong> <code>receive()</code>. The listening window is bounded by the timer alone, never by packet count — which is what allows N targets to answer one broadcast.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> PacketHandler::packet( const udp::endpoint&amp;, ConstRawDataSpan )</span><span class="src">find/packets/PacketHandler.cpp:23</span></summary>
+    <div class="fn-body">
+      <p>The dispatch point. Calls <code>Packet::packetType()</code> to peek the opcode without full decoding, then switches: <code>InformationRequest</code> → <code>informationRequestPacket()</code>, <code>InformationAnswer</code> → <code>informationAnswerPacket()</code>, anything else → <code>invalidPacket()</code>. Each branch constructs a full <code>Packet</code> inside a <code>try</code>; an <code>InvalidFindPacket</code> throw is caught, counted as invalid in the statistics, and rerouted to <code>invalidPacket()</code>.</p>
+      <p>Every branch updates <code>PacketStatistic::globalReceive()</code> — the counters the CLI does <em>not</em> print for FIND, though it does for TFTP.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">Packet::Packet</span>( Helper::ConstRawDataSpan rawPacket )</span><span class="src">find/packets/Packet.cpp:67</span></summary>
+    <div class="fn-body">
+      <p>The decoding constructor. Four validation gates, each throwing <code>InvalidFindPacket</code> with a distinct message:</p>
+      <ul class="tight">
+        <li>Size must exceed 2 bytes — <code>"Packet to small"</code>.</li>
+        <li>Last byte must equal <code>PacketTerminator</code> (0x10) — <code>"Packet is not terminated by packet terminator"</code>. The terminator is then trimmed off.</li>
+        <li>Opcode must be 1 or 2 — <code>"Invalid opcode"</code>.</li>
+        <li>The remaining bytes are split on <code>'\0'</code>; a segment with no terminator throws <code>"String Terminator missing"</code>. At least one parameter must result — <code>"Packet must contain at least one (empty) parameter"</code>.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> QueryImpl::informationAnswerPacket( const udp::endpoint&amp; remote, const Packet&amp; answer )</span><span class="src">find/clients/implementation/QueryImpl.cpp:233</span></summary>
+    <div class="fn-body">
+      <p>Rejects any answer whose parameter count is not exactly <code>ParameterList::Last</code> (5), logging <code>"invalid number of parameters"</code> and returning — a five-field contract with no tolerance for extension. Otherwise builds a <code>TargetInformation</code> by indexing the parameters in enum order and invokes <code>responseHandlerV</code>.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> FindQueryCommand::response( const address&amp;, const TargetInformation&amp; )</span><span class="src">targets/FindQueryCommand.cpp:150</span></summary>
+    <div class="fn-body">
+      <p>Prints the six fields — THW ID, type name, position, literal name, manufacturer code, and the derived Target ID — then appends the pair to <code>targetsV</code>. There is no de-duplication: a target that answers twice appears twice in the printout and twice in the saved JSON.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> QueryImpl::timerHandler( const error_code&amp; )</span><span class="src">find/clients/implementation/QueryImpl.cpp:168</span></summary>
+    <div class="fn-body">
+      <p>The normal exit. Returns on <code>operation_aborted</code>. Otherwise cancels and closes the socket, then calls <code>completionHandlerV()</code> → <code>FindQueryCommand::finishedFind()</code> → <code>done.count_down()</code>.</p>
+      <div class="note warn">
+        <span class="lbl">Latent double-release</span>
+        <p><code>timerHandler()</code> and <code>abort()</code> both call <code>completionHandlerV()</code> unconditionally, and neither sets a guard flag. The common orderings are safe because each cancels the other's pending operation, but a Ctrl-C that lands after the timer has already fired reaches <code>abort()</code> on a latch that is already at zero — <code>count_down()</code> below zero is undefined behaviour. A <code>bool completedV</code> checked in both is the minimal fix.</p>
+      </div>
+    </div>
+  </details>
+
+  <h3>Target ID construction</h3>
+  <div class="prose">
+    <p><code>TargetInformation::targetId()</code> at <code>find/TargetInformation.cpp:150</code> returns <code>TargetId{ thwId, thwPosition }</code> — the ID used for every protocol filename in every other operation. Its validation rules, from <code>TargetId.cpp</code> and <code>TargetId.hpp:39–48</code>, are worth knowing because they constrain what your hardware may report:</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Field</th><th class="m">Length</th><th>Character set</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>THW ID</td><td class="m">4 … 15</td><td>alphanumeric only, C locale</td><td class="m">TargetId.hpp:39,42</td></tr>
+        <tr><td>Position</td><td class="m">0 … 8</td><td>alphanumeric only, C locale</td><td class="m">TargetId.hpp:45,48</td></tr>
+        <tr><td>Separator</td><td class="m">1</td><td>first <code>_</code> in the string splits the two</td><td class="m">TargetId.cpp splitTargetId</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>So <code>ABCDEF_123</code> is a valid Target ID and yields protocol filenames like <code>ABCDEF_123.LCI</code>. A THW ID with a hyphen, a space, or fewer than four characters fails <code>isCompliant()</code> and every protocol filename built from it will be rejected by the host's own <code>checkRequest()</code>. §19 covers what to do when your hardware does not follow this.</p>
+  </div>
+</section>
+
+<section id="s9">
+  <span class="sec-no">09 — Operation base</span>
+  <h2>OperationImpl: the shared state machine</h2>
+  <div class="prose">
+    <p>Every TFTP-based operation derives from <code>Arinc615a::Host::OperationImpl</code>. It owns the TFTP client, the TFTP server, the DLP timeout timer, the abort state, and the protocol file logger — and it implements the initialisation handshake that all four operations begin with. The derived classes supply only <code>start()</code>, <code>tftpRequest()</code>, and their own file handling.</p>
+    <p>The asymmetry to hold onto: the host is a TFTP <strong>client</strong> when it reads the initialisation file and writes request files, and a TFTP <strong>server</strong> for everything the target pushes back — status files, list files, and data files. Both run simultaneously.</p>
+  </div>
+
+  <figure>
+    <div class="fw">
+      <svg viewBox="0 0 700 300" role="img" aria-label="State flow of the shared host operation from start through initialisation to the finished state">
+        <defs>
+          <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+          <marker id="ar3D" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#A6301F"/>
+          </marker>
+        </defs>
+
+        <g fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="14" y="20" width="104" height="36" rx="3"/>
+          <rect x="158" y="20" width="130" height="36" rx="3"/>
+          <rect x="328" y="20" width="130" height="36" rx="3"/>
+          <rect x="328" y="108" width="130" height="36" rx="3"/>
+          <rect x="328" y="196" width="130" height="36" rx="3"/>
+        </g>
+        <rect x="536" y="108" width="132" height="36" rx="3" fill="none" stroke="#A6301F" stroke-width="1.3"/>
+
+        <g fill="currentColor">
+          <text class="sv-l" x="66" y="42" text-anchor="middle">start()</text>
+          <text class="sv-l" x="223" y="42" text-anchor="middle">initialise(type)</text>
+          <text class="sv-l" x="393" y="42" text-anchor="middle">TFTP RRQ .LxI</text>
+          <text class="sv-l" x="393" y="130" text-anchor="middle">init file decoded</text>
+          <text class="sv-l" x="393" y="218" text-anchor="middle">operation body</text>
+          <text class="sv-s" x="393" y="234" text-anchor="middle" opacity="0.65">status / list / data files</text>
+        </g>
+        <text class="sv-l" x="602" y="124" text-anchor="middle" fill="#A6301F">finished()</text>
+        <text class="sv-s" x="602" y="139" text-anchor="middle" fill="#A6301F" opacity="0.8">latch released</text>
+
+        <g stroke="currentColor" stroke-width="1.2" marker-end="url(#ar3)">
+          <line x1="118" y1="38" x2="152" y2="38"/>
+          <line x1="288" y1="38" x2="322" y2="38"/>
+          <line x1="393" y1="56" x2="393" y2="102"/>
+          <line x1="393" y1="144" x2="393" y2="190"/>
+        </g>
+        <text class="sv-s" x="400" y="80" fill="currentColor" opacity="0.7">OperationAccepted</text>
+
+        <!-- denial paths -->
+        <g stroke="#A6301F" stroke-width="1.2" marker-end="url(#ar3D)">
+          <line x1="458" y1="126" x2="530" y2="126"/>
+          <path d="M458 214 L500 214 L500 150" fill="none"/>
+        </g>
+        <text class="sv-s" x="462" y="118" fill="#A6301F">denied / unsupported</text>
+        <text class="sv-s" x="462" y="208" fill="#A6301F">terminal status</text>
+
+        <!-- DLP timeout loop -->
+        <path d="M328 214 L286 214 L286 160 L322 160" fill="none" stroke="currentColor" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#ar3)" opacity="0.7"/>
+        <text class="sv-s" x="180" y="180" fill="currentColor" opacity="0.7">triggerDlpTimeout()</text>
+        <text class="sv-s" x="180" y="193" fill="currentColor" opacity="0.55">re-armed per status file</text>
+
+        <path d="M286 244 L286 272 L602 272 L602 150" fill="none" stroke="#A6301F" stroke-width="1.1" stroke-dasharray="4 3" marker-end="url(#ar3D)"/>
+        <text class="sv-s" x="330" y="288" fill="#A6301F">timer expiry → OperationAbortedByDlp</text>
+      </svg>
+    </div>
+    <figcaption>Initialisation is a gate: the operation body is only entered on <code>OperationAccepted</code>. Once inside, the DLP watchdog is re-armed by every status file, and its expiry is the only unconditional exit.</figcaption>
+  </figure>
+
+  <details class="fn" open>
+    <summary><span class="fn-sig"><span class="rt">OperationImpl::OperationImpl</span>( ioContext, configuration, handler, targetAddress, targetId, dlpTimeout, portOption )</span><span class="src">host/implementation/OperationImpl.cpp:50</span></summary>
+    <div class="fn-body">
+      <p>Stores all six parameters as <code>const</code> members, constructs a TFTP client and server from the shared <code>io_context</code>, and constructs the timer. The one active step is configuring the server:</p>
+      <pre><code>( *tftpServerV )
+  .serverAddress( { configurationV.localInterfaceAddress,
+                    portOptionV ? 0U : configurationV.tftpConfiguration.tftpServerPort } )
+  .requestHandler( std::bind_front( &amp;OperationImpl::receivedTftpRequest, this ) );</code></pre>
+      <p><strong>Port 0 when the Port Option is enabled</strong> — the OS picks an ephemeral port, whose actual value is read back later via <code>tftpServerV-&gt;localEndpoint().port()</code> and advertised to the target inside the TFTP option set. That is the whole mechanism of the ARINC 615A-3 Port Option.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> OperationImpl::initialise( Files::ProtocolFileType fileType )</span><span class="src">host/implementation/OperationImpl.cpp:249</span></summary>
+    <div class="fn-body">
+      <p>Starts the operation proper. In order: <code>tftpServerV-&gt;start()</code> so the host is listening <em>before</em> it asks for anything; allocate a <code>MemoryFile</code> as the sink; create a TFTP read operation; configure it by fluent chain; call <code>request()</code>; bump <code>ProtocolFileStatistic::globalReceive()</code>.</p>
+      <p>The configuration chain is where the whole <code>Arinc615aConfiguration</code> reaches the wire — <code>tftpTimeout</code>, <code>tftpRetries</code>, <code>dally</code>, <code>optionsConfiguration</code>, <code>dlpRetries</code>, the three handlers, the filename from <code>protocolFilename( fileType )</code>, the port option, and the remote endpoint built from <code>targetAddress()</code> and <code>tftpServerPort</code>.</p>
+      <p>Catches <code>Arinc615aException</code> and only logs it. Note what that means: an exception here leaves the operation with no pending work and no <code>finished()</code> call, so the CLI blocks on the latch until the DLP timer fires.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> OperationImpl::initialisationFileCompleted( fileType, MemoryFilePtr, TransferStatus )</span><span class="src">host/implementation/OperationImpl.cpp:376</span></summary>
+    <div class="fn-body">
+      <p>The gate in the diagram above. Resets <code>initialisationOperationV</code>, then:</p>
+      <ol class="steps">
+        <li>Any status other than <code>Successful</code> → <code>finished( OperationAbortedByDlp, "Initialisation File could not be received" )</code>.</li>
+        <li>Log the raw bytes through the protocol file logger, then decode as <code>Files::InitializationFile</code>.</li>
+        <li>Invoke <code>handlerV.initialisationResponse( initFile.response() )</code> — this is what prints the initialisation code to the console.</li>
+        <li>Switch on the acceptance code:
+          <ul class="tight">
+            <li><code>OperationAccepted</code> → <strong>store <code>protocolVersionV</code> from the file</strong>, then <code>triggerDlpTimeout()</code>. Every protocol file the host writes afterwards uses this version.</li>
+            <li><code>OperationDenied</code> / <code>OperationNotSupported</code> → <code>finished()</code> with that code and the target's description.</li>
+            <li>anything else → <code>finished( OperationAbortedByDlp, "unknown status code" )</code>.</li>
+          </ul>
+        </li>
+      </ol>
+      <p>A decode failure is caught and mapped to <code>finished( OperationAbortedByDlp, "Initialisation File could not be received" )</code>.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">bool</span> OperationImpl::initialisationFileOptionsNegotiation( const Arinc615aOptions&amp; )</span><span class="src">host/implementation/OperationImpl.cpp:342</span></summary>
+    <div class="fn-body">
+      <p>Strict validation of what the target echoed back. Returns <code>false</code> — which aborts the transfer — in four cases: a checksum option arrived when none was requested; a port option arrived when <code>--port-option</code> was off; the echoed port differs from the host's actual listening port; or the host requested the port option and the target did not echo it at all.</p>
+      <p>That last case logs <code>"Port option not accepted - Operation must be restarted with default port"</code>, which is the actionable message: rerun without <code>--port-option</code> against targets that predate ARINC 615A-3.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> OperationImpl::triggerDlpTimeout( seconds exceptionTime = 0s )</span><span class="src">host/implementation/OperationImpl.cpp:149</span></summary>
+    <div class="fn-body">
+      <p>One line of policy: <code>timerV.expires_after( std::max( exceptionTime, dlpTimeoutV ) )</code>, then re-arm <code>timerHandler</code>. The target's advertised exception timer can only ever <em>extend</em> the window, never shorten it below the configured <code>--dlp-timeout</code>. Calling <code>expires_after</code> on a pending timer cancels it, which is what makes each status file reset the watchdog.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> OperationImpl::timerHandler( const error_code&amp; )</span><span class="src">host/implementation/OperationImpl.cpp:312</span></summary>
+    <div class="fn-body">
+      <p>Returns on <code>operation_aborted</code> (the re-arm path). A genuine timer error yields <code>finished( OperationAbortedByDlp, "Internal timer error" )</code>. Expiry yields <code>finished( OperationAbortedByDlp, "DLP Timeout" )</code>.</p>
+      <p>Carries a <code>//! @todo cancel active transfers</code>. In-flight TFTP transfers are <em>not</em> cancelled on DLP timeout; the server is stopped by <code>finished()</code>, but individual operations unwind on their own schedule.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">bool</span> OperationImpl::isAborted( const udp::endpoint&amp; remote )</span><span class="src">host/implementation/OperationImpl.cpp:186</span></summary>
+    <div class="fn-body">
+      <p>Called at the top of every status-file request handler — the designated moment to inject an abort. Returns <code>false</code> immediately if <code>abortReasonV == NoAbort</code>. Otherwise it maps the reason to a status code (<code>Operator</code> → <code>OperationAbortedByOperator</code>, <code>Protocol</code> → <code>OperationAbortedByDlp</code>), sends it via <code>tftpServerV-&gt;abortOperation( remote, statusCode )</code>, <strong>resets <code>abortReasonV</code> to <code>NoAbort</code></strong>, re-arms the DLP timeout, and returns <code>true</code>.</p>
+      <p>The reset is deliberate: the abort is delivered exactly once, and the host then waits for the target to close the operation with its own final status file. That is why a single Ctrl-C does not end the process immediately.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">bool</span> OperationImpl::checkRequest( string_view filename, const udp::endpoint&amp; remote )</span><span class="src">host/implementation/OperationImpl.cpp:228</span></summary>
+    <div class="fn-body">
+      <p>The host's only authorisation check. If the filename parses as a protocol filename <em>and</em> its embedded Target ID differs from this operation's, the request is refused with TFTP error <code>FileNotFound</code> and the message <code>"Wrong target ID for protocol file"</code>. Non-protocol filenames — data files during upload and download — pass through unchecked.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> OperationImpl::finished( StatusCode status, string_view description = {} )</span><span class="src">host/implementation/OperationImpl.cpp:159</span></summary>
+    <div class="fn-body">
+      <p>Three statements: <code>handlerV.finished( status, description )</code>, <code>timerV.cancel()</code>, <code>tftpServerV-&gt;stop()</code>. No idempotence guard, no state check. Every re-entry counts the command's latch down again. §22 lists the two confirmed paths that reach it twice.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> OperationImpl::doAbort( AbortReason ) · <span class="rt">void</span> doTerminate( AbortReason )</span><span class="src">host/implementation/OperationImpl.cpp:77, 96</span></summary>
+    <div class="fn-body">
+      <p><code>doAbort</code> is idempotent — it returns early if <code>abortReasonV != NoAbort</code>. It records the reason and, if the initialisation read is still in flight, calls <code>gracefulAbort()</code> on it. It does <strong>not</strong> call <code>finished()</code>; delivery is deferred to the next <code>isAborted()</code> check.</p>
+      <p><code>doTerminate</code> has no such guard. It aborts the initialisation transfer if present, maps the reason to a status code, and calls <code>finished()</code> directly. Two SIGINTs in quick succession therefore reach <code>finished()</code> twice.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">string</span> OperationImpl::protocolFilename( ProtocolFileType ) const</span><span class="src">host/implementation/OperationImpl.cpp:171</span></summary>
+    <div class="fn-body">
+      <p><code>static_cast&lt;std::string&gt;( Files::ProtocolFilename{ targetIdV, fileType } )</code> — the single place protocol filenames are built. See §14 for the extension table.</p>
+    </div>
+  </details>
+</section>
+
+<section id="s10">
+  <span class="sec-no">10 — Information</span>
+  <h2>Information: the reference operation</h2>
+  <div class="prose">
+    <p>The simplest complete operation, and the one to understand first — the other three are variations on its structure. The host reads <code>.LCI</code>, the target pushes back <code>.LCL</code> (the Load Configuration List) and zero or more <code>.LCS</code> status files, and the host prints the target's part numbers.</p>
+  </div>
+
+  <figure>
+    <div class="fw">
+      <svg viewBox="0 0 700 372" role="img" aria-label="Message sequence between host data loader and target hardware during an Information operation">
+        <defs>
+          <marker id="ar4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <rect x="46" y="10" width="164" height="28" rx="3" fill="none" stroke="currentColor"/>
+        <rect x="470" y="10" width="176" height="28" rx="3" fill="none" stroke="currentColor"/>
+        <text class="sv-l" x="128" y="29" text-anchor="middle" fill="currentColor">Host (data loader)</text>
+        <text class="sv-l" x="558" y="29" text-anchor="middle" fill="currentColor">Target hardware</text>
+
+        <line x1="128" y1="38" x2="128" y2="344" stroke="currentColor" stroke-dasharray="3 4" opacity="0.5"/>
+        <line x1="558" y1="38" x2="558" y2="344" stroke="currentColor" stroke-dasharray="3 4" opacity="0.5"/>
+
+        <!-- role labels -->
+        <rect x="18" y="58" width="46" height="94" rx="2" fill="currentColor" opacity="0.08"/>
+        <text class="sv-s" x="41" y="88" text-anchor="middle" fill="currentColor" opacity="0.7">TFTP</text>
+        <text class="sv-s" x="41" y="101" text-anchor="middle" fill="currentColor" opacity="0.7">client</text>
+        <rect x="18" y="170" width="46" height="164" rx="2" fill="currentColor" opacity="0.08"/>
+        <text class="sv-s" x="41" y="240" text-anchor="middle" fill="currentColor" opacity="0.7">TFTP</text>
+        <text class="sv-s" x="41" y="253" text-anchor="middle" fill="currentColor" opacity="0.7">server</text>
+
+        <g stroke="currentColor" stroke-width="1.2" marker-end="url(#ar4)">
+          <line x1="132" y1="76" x2="552" y2="76"/>
+          <line x1="554" y1="112" x2="134" y2="112"/>
+          <line x1="554" y1="152" x2="134" y2="152"/>
+          <line x1="132" y1="188" x2="552" y2="188"/>
+          <line x1="554" y1="228" x2="134" y2="228"/>
+          <line x1="132" y1="264" x2="552" y2="264"/>
+          <line x1="554" y1="304" x2="134" y2="304"/>
+        </g>
+
+        <g fill="currentColor">
+          <text class="sv-m" x="342" y="70" text-anchor="middle">RRQ  ABCDEF_123.LCI  [+port]</text>
+          <text class="sv-m" x="342" y="106" text-anchor="middle">OACK / DATA — init file</text>
+          <text class="sv-m" x="342" y="146" text-anchor="middle">WRQ  ABCDEF_123.LCS</text>
+          <text class="sv-m" x="342" y="182" text-anchor="middle">ACK — accept the status push</text>
+          <text class="sv-m" x="342" y="222" text-anchor="middle">WRQ  ABCDEF_123.LCL  [+checksum_n]</text>
+          <text class="sv-m" x="342" y="258" text-anchor="middle">OACK — echo checksum option</text>
+          <text class="sv-m" x="342" y="298" text-anchor="middle">WRQ  .LCS — final status</text>
+        </g>
+
+        <g fill="currentColor" opacity="0.6">
+          <text class="sv-s" x="132" y="126">→ initialisationResponse()</text>
+          <text class="sv-s" x="132" y="242">→ status()</text>
+          <text class="sv-s" x="132" y="278">→ targetInformation()</text>
+          <text class="sv-s" x="132" y="318">→ finished() — latch released</text>
+        </g>
+
+        <text class="sv-s" x="46" y="362" fill="currentColor" opacity="0.6">The host changes TFTP role after initialisation; both endpoints stay live throughout.</text>
+      </svg>
+    </div>
+    <figcaption>The host initiates exactly one transfer — the <code>.LCI</code> read. Everything after that is the target pushing files to the host TFTP server, which is why the server is started before the read is issued.</figcaption>
+  </figure>
+
+  <div class="note">
+    <span class="lbl">Ordering is not guaranteed</span>
+    <p>A conforming target may send the <code>.LCL</code> with no status file at all, or bracket it with status files. The implementation handles both through the <code>waitForFinalStatusV</code> flag described below — do not assume the sequence above is the only legal one.</p>
+  </div>
+
+  <details class="fn" open>
+    <summary><span class="fn-sig"><span class="rt">void</span> InformationOperationImpl::start()</span><span class="src">host/implementation/InformationOperationImpl.cpp:70</span></summary>
+    <div class="fn-body">
+      <p>Two statements: clear <code>waitForFinalStatusV</code>, then <code>initialise( ProtocolFileType::LoadConfigurationInitialization )</code>. The file type is the only thing that distinguishes this operation from the other three at startup.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> InformationOperationImpl::tftpRequest( remote, requestType, filename, tftpOptions, arinc615aOptions )</span><span class="src">host/implementation/InformationOperationImpl.cpp:87</span></summary>
+    <div class="fn-body">
+      <p>The inbound router. Parses the filename into a <code>ProtocolFilename</code>, runs <code>checkRequest()</code> and returns on failure, rejects non-write requests, then switches on file type: <code>LoadConfigurationList</code> → <code>listFileRequest()</code>; <code>LoadConfigurationStatus</code> → <code>statusFileRequest()</code>; anything else → TFTP <code>FileNotFound</code> with <code>"Wrong filename"</code>. Each accepted branch bumps <code>ProtocolFileStatistic::globalReceive()</code>.</p>
+      <div class="note warn">
+        <span class="lbl">Confirmed defect — missing return</span>
+        <p>At <code>InformationOperationImpl.cpp:103–107</code> the non-<code>Write</code> branch sends <code>IllegalTftpOperation</code> but has no <code>return</code>. Control falls into the file-type switch and a second TFTP operation is created for a request already refused. Compare <code>UploadOperationImpl.cpp:180</code>, where the same check is a <code>switch</code> with proper <code>break</code>s. Add <code>return;</code> after the <code>errorOperation()</code> call.</p>
+      </div>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> InformationOperationImpl::listFileRequest( remote, tftpOptions, arinc615aOptions )</span><span class="src">host/implementation/InformationOperationImpl.cpp:260</span></summary>
+    <div class="fn-body">
+      <p>Accepts the target's push of the Load Configuration List. If a previous list transfer is still open, it is closed with <code>gracefulAbort( NotDefined, "New list file received" )</code> — last write wins.</p>
+      <p>The <strong>checksum option is accepted here and nowhere else in this operation</strong>: the value is captured, echoed back in <code>negotiatedArinc615aOptions</code>, and bound into the completion handler for verification. Part-number and port options are logged as unexpected and dropped.</p>
+      <p>A thrown <code>Arinc615aException</code> triggers <code>abort( AbortReason::Protocol )</code>.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> InformationOperationImpl::listFileCompleted( MemoryFilePtr, CheckValue, TransferStatus )</span><span class="src">host/implementation/InformationOperationImpl.cpp:319</span></summary>
+    <div class="fn-body">
+      <p>Where the payload finally becomes console output.</p>
+      <ol class="steps">
+        <li>On non-success: <code>finished( OperationAbortedByDlp, "Invalid Protocol file" )</code> if no status file has been seen, otherwise <code>abort( Protocol )</code> and let the target close out.</li>
+        <li><strong>Integrity check.</strong> Build an <code>Arinc649::CheckValueGenerator</code> for the negotiated type, run it over the received bytes, compare to the advertised value. A mismatch sets <code>integrityInformation = false</code> and logs a warning — <em>it does not abort</em>.</li>
+        <li>Log the raw file, decode as <code>Files::LoadConfigurationListFile</code>.</li>
+        <li>Warn if the file's protocol version differs from the one latched at initialisation. Warning only.</li>
+        <li><code>handlerV.targetInformation( listFile.targetsHardware(), integrityInformation )</code> — the command prints <code>Information Integrity: Valid|Invalid</code> and then each target hardware block.</li>
+        <li>If no status file was ever received, <code>finished( OperationCompleted )</code>. Otherwise <code>triggerDlpTimeout()</code> and wait for the target's final status.</li>
+      </ol>
+      <div class="note">
+        <span class="lbl">Worth knowing</span>
+        <p>A checksum mismatch surfaces only as the word <code>Invalid</code> on one console line and a warning in the log. The exit code is unaffected and the part numbers are printed regardless. If integrity matters in your workflow, key on that line explicitly.</p>
+      </div>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> InformationOperationImpl::statusFileRequest( remote, tftpOptions, arinc615aOptions )</span><span class="src">host/implementation/InformationOperationImpl.cpp:135</span></summary>
+    <div class="fn-body">
+      <p>Calls <code>isAborted( remote )</code> first and returns if it fired — this is the abort injection point. Otherwise logs any unexpected ARINC 615A options, creates a TFTP server write operation, and pushes it onto <code>statusFileOperationsV</code>, a <code>std::forward_list</code> that allows concurrent status transfers.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> InformationOperationImpl::statusFileCompleted( MemoryFilePtr, WriteOperationPtr, TransferStatus )</span><span class="src">host/implementation/InformationOperationImpl.cpp:180</span></summary>
+    <div class="fn-body">
+      <p>Removes the operation from the list; if it was not found, calls <code>finished()</code> and <strong>returns</strong> — this is the correct form of the pattern that is broken in the upload and download variants (§22).</p>
+      <p>Decodes as <code>Files::InformationOperationStatusFile</code>, warns on version mismatch, invokes <code>handlerV.status()</code>, then dispatches on the status code:</p>
+      <div class="tw">
+        <table>
+          <thead><tr><th class="m">Status code</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td class="m">OperationAccepted</td><td>set <code>waitForFinalStatusV</code>, re-arm DLP timeout</td></tr>
+            <tr><td class="m">OperationInProgress<br>…AdditionalInfo</td><td>set <code>waitForFinalStatusV</code>, re-arm with the file's <strong>exception timer</strong></td></tr>
+            <tr><td class="m">OperationCompleted</td><td><code>finished()</code> — terminal</td></tr>
+            <tr><td class="m">OperationNotAccepted<br>OperationNotSupported<br>…AbortedByTargetHw<br>…AbortedByDlp<br>…AbortedByOperator</td><td><code>finished()</code> with that code — terminal</td></tr>
+            <tr><td class="m">anything else</td><td>warn, <code>finished( OperationAbortedByDlp )</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The exception timer is honoured only for the two in-progress codes. That is the mechanism by which a target performing a long internal operation keeps the host from timing out.</p>
+    </div>
+  </details>
+
+  <h3>Console output path</h3>
+  <div class="prose">
+    <p>Four overrides in <code>InformationOperationCommand</code> produce everything the user sees, all on the I/O thread:</p>
+    <ul class="tight">
+      <li><code>initialisationDeferred</code> — <code>:209</code> — prints the WAIT duration.</li>
+      <li><code>initialisationResponse</code> — <code>:214</code> — prints the initialisation code and description.</li>
+      <li><code>status</code> — <code>:237</code> — prints counter, code, description, exception timer, estimated time.</li>
+      <li><code>targetInformation</code> — <code>:255</code> — prints the integrity verdict, then <code>targetHardware.toString()</code> per entry.</li>
+      <li><code>finished</code> — <code>:225</code> — prints the final code and description, then <code>done.count_down()</code>.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="s11">
+  <span class="sec-no">11 — Upload</span>
+  <h2>Upload: host as file server</h2>
+  <div class="prose">
+    <p>Upload inverts the data direction. After initialisation the host writes a <code>.LUR</code> request file naming the loads it intends to send, and then serves the target's read requests for the actual load files out of an ARINC 665 media set. The host is a TFTP server for both the status pushes and the data pulls.</p>
+    <p>The critical detail is <em>when</em> the load list is sent: not at <code>start()</code>, but from inside the <code>status()</code> handler, on the first status file carrying <code>OperationAccepted</code>.</p>
+  </div>
+
+  <details class="fn" open>
+    <summary><span class="fn-sig"><span class="rt">void</span> UploadOperationCommand::execute( … )</span><span class="src">operations/UploadOperationCommand.cpp:158</span></summary>
+    <div class="fn-body">
+      <p>Follows the §7 skeleton with three extra steps between address resolution and operation construction:</p>
+      <ol class="steps">
+        <li><code>Arinc665::Utils::MediaSetManager::load( mediaSetManagerDirectoryV, checkMediaSetManagerIntegrityV, loadProgress )</code> — opens the media set store, optionally verifying every file. The progress callback prints <code>"Loading: n/N pn medium:total"</code>.</li>
+        <li><code>mediaSetManagerV-&gt;mediaSet( mediaSetPartNumberV )</code>; a miss throws <code>program_options::error{ "Media Set '…' does not exist" }</code>. The returned pair yields the media set and its check values, stored in <code>checkValuesV</code>.</li>
+        <li>For each <code>--load-header</code>: <code>mediaSet-&gt;first-&gt;recursiveLoads( loadHeader )</code>. Zero matches and multiple matches both throw. Survivors are appended to <code>loadsV</code>.</li>
+      </ol>
+      <p>All three failures are <code>program_options::error</code>, so they are re-thrown to the dispatcher and reported as usage errors before any network traffic occurs.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> UploadOperationCommand::status( const Information::UploadStatus&amp; )</span><span class="src">operations/UploadOperationCommand.cpp:334</span></summary>
+    <div class="fn-body">
+      <p>Prints the aggregate status — counter, code, description, list ratio, exception timer, estimated time — then one block per load with its header filename, part number, ratio, and per-load status. Flushes explicitly, because progress output matters here.</p>
+      <p>Then the trigger:</p>
+      <pre><code>if ( status.code() == StatusCode::OperationAccepted &amp;&amp; !loadListTransmittedV )
+{
+  // build UploadLoads from loadsV
+  operationV-&gt;loadList( std::move( loadsList ) );
+  loadListTransmittedV = true;
+}</code></pre>
+      <p>Each entry is an <code>Information::UploadLoad</code> holding only <code>headerFilename</code> and <code>partNumber</code> — taken from the ARINC 665 load object, not from anything the user typed. <strong>This is the field pair the target matches against</strong>; see §19 if your loads are named differently.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> UploadOperationImpl::loadList( Information::UploadLoads loads )</span><span class="src">host/implementation/UploadOperationImpl.cpp:88</span></summary>
+    <div class="fn-body">
+      <p>Guarded by <code>loadListSentV</code> — a second call logs <code>"Load list can be only transmitted once"</code> and returns.</p>
+      <p>Builds a <code>Files::UploadOperationRequestFile</code> at the latched protocol version, encodes it into a <code>MemoryFile</code>, logs it via the protocol file logger, and issues a TFTP <strong>write</strong> to <code>&lt;TargetId&gt;.LUR</code> on the target's TFTP port. Completion routes to <code>loadListCompleted()</code>; a failed transfer calls <code>abort( AbortReason::Protocol )</code>.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> UploadOperationImpl::tftpRequest( … )</span><span class="src">host/implementation/UploadOperationImpl.cpp:180</span></summary>
+    <div class="fn-body">
+      <p>Splits on request type rather than filename, which is the structural difference from the Information operation.</p>
+      <ul class="tight">
+        <li><strong>Read</strong> — the target pulling a load file. Forwarded straight to <code>handlerV.fileRequest()</code> with the part number and check value extracted from the ARINC 615A options. The host layer creates no TFTP operation itself; the command does.</li>
+        <li><strong>Write</strong> — only <code>UploadStatus</code> (<code>.LUS</code>) is accepted; everything else is refused with <code>FileNotFound</code> and <code>"Wrong filename"</code>.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> UploadOperationCommand::fileRequest( remote, filename, tftpOptions, loadPartNumber, checkValue )</span><span class="src">operations/UploadOperationCommand.cpp:391</span></summary>
+    <div class="fn-body">
+      <p>Resolves and serves one load file.</p>
+      <ol class="steps">
+        <li><code>Arinc665::Media::Loads_file( loadsV, checkValuesV, filename, loadPartNumber, checkValue )</code> — matches on all three of filename, part number, and check value. A miss sends TFTP <code>FileNotFound</code> and returns.</li>
+        <li><code>mediaSetManagerV-&gt;filePath( file )</code> maps the logical file to a path on disk; a non-regular file also sends <code>FileNotFound</code>.</li>
+        <li>Opens a <code>Tftp::Files::StreamFile</code> in <code>Transmit</code> mode with the known file size — this is what populates the TFTP transfer-size option.</li>
+        <li><code>operationV-&gt;fileTransfer( … )</code> builds the server read operation with the part number and checksum echoed back as negotiated options, then <code>start()</code>.</li>
+      </ol>
+      <p>Concurrent transfers are held in <code>fileOperationsV</code>, a <code>forward_list</code>. Completion removes the entry; a failed transfer logs <code>"File transfer failed - Ignore it from the host side"</code> and does nothing else — the target is expected to report the failure in its own status file, and the per-load status codes in <code>status()</code> are where it surfaces.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">Tftp::Servers::ReadOperationPtr</span> UploadOperationImpl::fileTransfer( dataHandler, remote, tftpOptions, partNumber, checkValue )</span><span class="src">host/implementation/UploadOperationImpl.cpp:128</span></summary>
+    <div class="fn-body">
+      <p>Builds but does <em>not</em> start the operation — the caller starts it, so it can attach its own completion handler first. Populates <code>Arinc615aOptions</code> with the part number when non-empty and the check value when its type is not <code>NotUsed</code>. The port option is explicitly never used for data transfers.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> UploadOperationImpl::statusFileCompleted( … )</span><span class="src">host/implementation/UploadOperationImpl.cpp:321</span></summary>
+    <div class="fn-body">
+      <p>Structurally identical to the Information variant, decoding <code>Files::UploadOperationStatusFile</code> and dispatching on the same status-code table — except that <code>OperationAccepted</code> here only re-arms the timer; the <code>waitForFinalStatus</code> concept does not exist in this operation.</p>
+      <div class="note warn">
+        <span class="lbl">Confirmed defect — missing return</span>
+        <p>At <code>UploadOperationImpl.cpp:326–330</code>, the "operation completed which was not initiated" branch calls <code>finished()</code> and then <strong>falls through</strong> into the rest of the function, which may call <code>finished()</code> again. <code>InformationOperationImpl.cpp:189</code> has the <code>return</code>; this one does not, and neither does <code>DownloadOperationImpl.cpp:162</code>. Two <code>finished()</code> calls means two <code>count_down()</code> on a latch of 1.</p>
+      </div>
+    </div>
+  </details>
+
+  <h3>The three upload variants</h3>
+  <div class="prose">
+    <p><code>AdhocUpload</code>, <code>UploadLoads</code>, and <code>BatchUpload</code> reuse <code>UploadOperationImpl</code> unchanged. They differ only in how <code>loadsV</code> is populated during <code>execute()</code>:</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Command</th><th>Load source</th><th class="m">Key options</th></tr></thead>
+      <tbody>
+        <tr><td class="m">Upload</td><td>Registered media set manager, load looked up by header name inside a named media set</td><td class="m">--media-set-manager-dir<br>--media-set-pn<br>--load-header</td></tr>
+        <tr><td class="m">AdhocUpload</td><td>Raw media source directories imported on the fly, no persistent store</td><td class="m">--source-directory<br>--check-file-integrity<br>--load-header</td></tr>
+        <tr><td class="m">UploadLoads</td><td>Load header addressed directly by filesystem path</td><td class="m">--load-header (path)<br>--check-file-integrity</td></tr>
+        <tr><td class="m">BatchUpload</td><td>ARINC 665 batch file; drives multiple targets, resolving each through the targets list</td><td class="m">--batch-file<br>--targets-list (required)<br>--media-set-pn</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p><code>BatchUpload</code> is the only command with no <code>--target-id</code> and no <code>--target-address</code>: targets come from the batch file, and <code>--targets-list</code> is <code>required()</code> because it is the only way to resolve them. It drives operations through <code>Host::BatchUploadOperationProxy</code>.</p>
+  </div>
+</section>
+
+<section id="s12">
+  <span class="sec-no">12 — Media download</span>
+  <h2>Media Defined Download: host names the files</h2>
+  <div class="prose">
+    <p>The host initialises with <code>.LND</code>, writes a <code>.LNR</code> request file listing the filenames it wants plus optional user-defined data, and then receives those files as TFTP writes from the target. <code>DownloadOperationImpl</code> holds the machinery shared with the operator-defined variant; <code>MediaDefinedDownloadOperationImpl</code> adds the request file.</p>
+  </div>
+
+  <details class="fn" open>
+    <summary><span class="fn-sig"><span class="rt">void</span> MediaDefinedDownloadOperationImpl::request( DownloadFiles files, RawData userDefinedData )</span><span class="src">host/implementation/MediaDefinedDownloadOperationImpl.cpp:106</span></summary>
+    <div class="fn-body">
+      <p>Guarded by <code>requestSentV</code>. Builds a <code>Files::DownloadOperationRequestFile</code> at the latched protocol version, logs it, and TFTP-writes it to <code>&lt;TargetId&gt;.LNR</code>. Called from the command's <code>status()</code> handler on the first <code>OperationAccepted</code>, exactly mirroring the upload load-list trigger.</p>
+      <p>The option negotiation handler rejects <em>any</em> ARINC 615A option echoed by the target on this transfer — the request file carries no part number, checksum, or port.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> MediaDefinedDownloadOperationImpl::tftpRequest( … )</span><span class="src">host/implementation/MediaDefinedDownloadOperationImpl.cpp:150</span></summary>
+    <div class="fn-body">
+      <p>Read requests are always wrong here and are refused with <code>IllegalTftpOperation</code>. Write requests split on file type: <code>DownloadStatus</code> (<code>.LNS</code>) goes to <code>statusFileRequest()</code>; <strong>everything else is treated as a data file</strong> and forwarded to <code>handlerV.fileRequest()</code> with the part number and check value from the options.</p>
+      <p>That default branch is the important one — downloaded filenames are arbitrary and target-defined, so the router cannot whitelist them.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> MediaDefinedDownloadOperationCommand::fileRequest( remote, filename, tftpOptions, partNumber, checkValue )</span><span class="src">operations/MediaDefinedDownloadOperationCommand.cpp:358</span></summary>
+    <div class="fn-body">
+      <p>Builds the destination path as <code>downloadDataPathV / Helper::normaliseFilename( filename )</code>. The normalisation call is the path-traversal guard — the target supplies this filename, and it is not otherwise validated.</p>
+      <p>Registers the transfer with <code>downloadInformationV.fileStart()</code>, opens a <code>StreamFile</code> in <code>Receive</code> mode, creates the server write operation via <code>operationV-&gt;fileTransfer()</code>, binds a completion handler carrying the filename, path, and expected transfer size, and starts it.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> MediaDefinedDownloadOperationCommand::fileCompleted( filename, filePath, expectedFileSize, operation, status )</span><span class="src">operations/MediaDefinedDownloadOperationCommand.cpp:396</span></summary>
+    <div class="fn-body">
+      <p>On failure, records <code>DownloadInformation::TransferError</code> and returns — the download continues for other files. On success, compares the on-disk size against the TFTP transfer-size option and <strong>warns only</strong> if they differ, then records <code>TransferOk</code> with the actual size.</p>
+      <p>A size mismatch does not fail the operation, delete the file, or change the exit code.</p>
+    </div>
+  </details>
+
+  <div class="prose">
+    <h3>Where downloaded files land</h3>
+    <p>Controlled by three options. <code>--download-base-directory</code> sets the root. By default a per-operation sub-directory is created beneath it; <code>--no-download-directory,-n</code> disables that and writes directly into the base. <code>--no-check-validity,-c</code> disables the post-transfer validity check. If <code>--file</code> is given no values, the operation is cancelled after the list transfer rather than downloading anything.</p>
+  </div>
+</section>
+
+<section id="s13">
+  <span class="sec-no">13 — Operator download</span>
+  <h2>Operator Defined Download: target advertises first</h2>
+  <div class="prose">
+    <p>The negotiation runs one step longer. The host initialises with <code>.LNO</code>; the target pushes a <code>.LNL</code> list file advertising what it can provide; the host replies with a <code>.LNA</code> answer file selecting from that list; the selected files then transfer. Everything else matches §12.</p>
+  </div>
+
+  <details class="fn" open>
+    <summary><span class="fn-sig"><span class="rt">void</span> OperatorDefinedDownloadOperationImpl::listFileRequest( … ) · listFileCompleted( … )</span><span class="src">host/implementation/OperatorDefinedDownloadOperationImpl.cpp:224, 271</span></summary>
+    <div class="fn-body">
+      <p><code>listFileRequest</code> closes any in-flight list transfer with <code>gracefulAbort</code>, logs unexpected ARINC 615A options, and accepts the write into a <code>MemoryFile</code>. Unlike the Information operation's list handler, <strong>no checksum option is accepted</strong> — the <code>.LNL</code> is not integrity-checked.</p>
+      <p><code>listFileCompleted</code> decodes a <code>Files::DownloadOperationListFile</code>, warns on version mismatch, and calls <code>handlerV.downloadingList( listFile.files() )</code>. A transfer failure or decode failure both call <code>abort( AbortReason::Protocol )</code>.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> OperatorDefinedDownloadOperationImpl::answer( Information::DownloadFiles files )</span><span class="src">host/implementation/OperatorDefinedDownloadOperationImpl.cpp:112</span></summary>
+    <div class="fn-body">
+      <p>Guarded by <code>answerSentV</code>. Builds a <code>Files::DownloadOperationAnswerFile</code> and TFTP-writes it to <code>&lt;TargetId&gt;.LNA</code>. The command calls this from its <code>downloadingList</code> handler: with <code>--download-all</code> it echoes the whole advertised list, otherwise it intersects the advertisement with the <code>--file</code> values.</p>
+      <p>Like the media-defined request, the answer transfer rejects any echoed ARINC 615A option.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> OperatorDefinedDownloadOperationImpl::tftpRequest( … )</span><span class="src">host/implementation/OperatorDefinedDownloadOperationImpl.cpp:154</span></summary>
+    <div class="fn-body">
+      <p>Same shape as §12 with one extra case: <code>OperatorDefinedDownloadList</code> routes to <code>listFileRequest()</code>. <code>DownloadStatus</code> routes to the shared status handler; every other filename is a data file.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">WriteOperationPtr</span> DownloadOperationImpl::doFileTransfer( … ) · <span class="rt">void</span> statusFileCompleted( … )</span><span class="src">host/implementation/DownloadOperationImpl.cpp:57, 157</span></summary>
+    <div class="fn-body">
+      <p>Shared by both download variants. <code>doFileTransfer</code> builds a server write operation with part number and check value echoed as negotiated options. <code>statusFileCompleted</code> decodes <code>Files::DownloadOperationStatusFile</code> and runs the same status-code dispatch table as §10 — including the same missing <code>return</code> at <code>:162</code> flagged in §22.</p>
+    </div>
+  </details>
+</section>
+
+<section id="s14">
+  <span class="sec-no">14 — Protocol files</span>
+  <h2>Protocol file codec</h2>
+  <div class="prose">
+    <p>Every ARINC 615A protocol file shares a six-byte header and is built from three primitive encodings: big-endian integers, length-prefixed NUL-terminated strings, and three-character ASCII ratios. All of it lives under <code>lib/arinc_615a/files/</code>.</p>
+  </div>
+
+  <figure>
+    <div class="fw">
+      <svg viewBox="0 0 660 250" role="img" aria-label="Protocol file header layout and the length-prefixed string encoding used inside protocol files">
+        <g fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="14" y="34" width="150" height="34" rx="2"/>
+          <rect x="164" y="34" width="110" height="34" rx="2"/>
+          <rect x="274" y="34" width="230" height="34" rx="2"/>
+        </g>
+        <g fill="currentColor">
+          <text class="sv-s" x="14" y="24" opacity="0.75">Protocol file — common header, then per-type body</text>
+          <text class="sv-m" x="89" y="55" text-anchor="middle">file length</text>
+          <text class="sv-m" x="219" y="55" text-anchor="middle">version</text>
+          <text class="sv-m" x="389" y="55" text-anchor="middle">body</text>
+          <text class="sv-s" x="89" y="82" text-anchor="middle" opacity="0.6">uint32 BE</text>
+          <text class="sv-s" x="219" y="82" text-anchor="middle" opacity="0.6">uint16 — 'A2' 'A3' 'A4'</text>
+          <text class="sv-s" x="389" y="82" text-anchor="middle" opacity="0.6">type specific</text>
+        </g>
+        <text class="sv-s" x="14" y="102" fill="currentColor" opacity="0.55">HeaderSize = 6. The length field must equal the total file size or decode throws.</text>
+
+        <g fill="none" stroke="currentColor" stroke-width="1">
+          <rect x="14" y="150" width="70" height="34" rx="2"/>
+          <rect x="84" y="150" width="200" height="34" rx="2"/>
+          <rect x="284" y="150" width="60" height="34" rx="2"/>
+        </g>
+        <g fill="currentColor">
+          <text class="sv-s" x="14" y="140" opacity="0.75">String encoding — String_encode / String_decode</text>
+          <text class="sv-m" x="49" y="171" text-anchor="middle">len</text>
+          <text class="sv-m" x="184" y="171" text-anchor="middle">characters</text>
+          <text class="sv-m" x="314" y="171" text-anchor="middle">0x00</text>
+          <text class="sv-s" x="49" y="198" text-anchor="middle" opacity="0.6">uint8</text>
+          <text class="sv-s" x="184" y="198" text-anchor="middle" opacity="0.6">len counts the NUL</text>
+          <text class="sv-s" x="314" y="198" text-anchor="middle" opacity="0.6">terminator</text>
+        </g>
+        <text class="sv-s" x="14" y="220" fill="currentColor" opacity="0.55">Empty string encodes as a single 0x00 length byte with no payload — not as len=1 plus NUL.</text>
+        <text class="sv-s" x="14" y="238" fill="currentColor" opacity="0.55">Max encoded length is 254 payload bytes; longer throws "string too long".</text>
+      </svg>
+    </div>
+    <figcaption>The length field is redundant with the transfer size but is validated strictly, which makes truncated protocol files fail fast rather than decode into garbage.</figcaption>
+  </figure>
+
+  <details class="fn" open>
+    <summary><span class="fn-sig"><span class="rt">void</span> ProtocolFile::insertHeader( RawDataSpan ) const · <span class="rt">ConstRawDataSpan</span> decodeHeader( ConstRawDataSpan )</span><span class="src">files/ProtocolFile.cpp:43, 52</span></summary>
+    <div class="fn-body">
+      <p><code>insertHeader</code> is called <em>last</em> by every <code>encode()</code> — the body is built first, then the now-known total length and the version are written into the reserved leading six bytes.</p>
+      <p><code>decodeHeader</code> enforces three things and throws <code>Arinc615aException</code> on each: the buffer is at least <code>HeaderSize</code>; the embedded length equals the actual buffer size (<code>"internal length field and data size differs"</code>); the version is one of <code>Arinc615a2</code> (0x4133) or <code>Arinc615a34</code> (0x4134). <strong><code>Arinc615a1</code> (0x4132) is deliberately rejected</strong> — supplement 1 protocol files are not supported.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">RawData</span> String_encode( string_view, uint8_t fixedLength = 0 ) · <span class="rt">tuple&lt;span,string_view&gt;</span> String_decode( ConstRawDataSpan )</span><span class="src">files/String.cpp:64, 24</span></summary>
+    <div class="fn-body">
+      <p><code>String_encode</code> computes <code>rawStringSize</code> as zero for an empty string, otherwise <code>size() + 1</code> for the terminator. Throws if that reaches 255 or exceeds <code>fixedLength</code> when one is given. Writes the length byte, then the characters, then forces the final byte to NUL.</p>
+      <p><code>String_decode</code> reads the length byte, validates the remaining buffer is long enough (<code>"string length inconsistent"</code>), and for non-zero lengths requires an embedded NUL (<code>"string not NULL terminated"</code>). The returned string is truncated at that NUL — <strong>a declared length longer than the actual text is legal</strong>, which is exactly the ARINC 615A-2 change noted in the project README.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">tuple&lt;span,Ratio&gt;</span> Ratio_decode( ConstRawDataSpan ) · <span class="rt">RawData</span> Ratio_encode( const Ratio&amp; )</span><span class="src">files/Ratio.cpp</span></summary>
+    <div class="fn-body">
+      <p>Ratios are three ASCII digits, space-padded via <code>std::format( "{:3}", value )</code>. Decode parses with <code>std::stoul</code> and rejects values above 100. A parse failure becomes <code>Arinc615aException</code>. These carry upload and download completion percentages in status files.</p>
+    </div>
+  </details>
+
+  <h3>Filename mapping</h3>
+  <div class="prose">
+    <p><code>ProtocolFilename</code> splits on the first <code>.</code>, validates the stem as a Target ID, and maps the extension through a Boost.MultiIndex table at <code>files/ProtocolFilename.cpp:148</code>. Both directions are supported, which is why <code>isProtocolFilename()</code> can reject unknown extensions cheaply.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th class="m">Ext</th><th>ProtocolFileType</th><th>Operation</th><th>Direction</th></tr></thead>
+      <tbody>
+        <tr><td class="m">LCI</td><td class="m">LoadConfigurationInitialization</td><td>Information</td><td>host reads</td></tr>
+        <tr><td class="m">LCL</td><td class="m">LoadConfigurationList</td><td>Information</td><td>target writes</td></tr>
+        <tr><td class="m">LCS</td><td class="m">LoadConfigurationStatus</td><td>Information</td><td>target writes</td></tr>
+        <tr><td class="m">LUI</td><td class="m">UploadInitialization</td><td>Upload</td><td>host reads</td></tr>
+        <tr><td class="m">LUR</td><td class="m">UploadRequest</td><td>Upload</td><td>host writes</td></tr>
+        <tr><td class="m">LUS</td><td class="m">UploadStatus</td><td>Upload</td><td>target writes</td></tr>
+        <tr><td class="m">LND</td><td class="m">MediaDefinedDownloadInitialization</td><td>Med download</td><td>host reads</td></tr>
+        <tr><td class="m">LNR</td><td class="m">MediaDefinedDownloadRequest</td><td>Med download</td><td>host writes</td></tr>
+        <tr><td class="m">LNO</td><td class="m">OperatorDefinedDownloadInitialization</td><td>Op download</td><td>host reads</td></tr>
+        <tr><td class="m">LNL</td><td class="m">OperatorDefinedDownloadList</td><td>Op download</td><td>target writes</td></tr>
+        <tr><td class="m">LNA</td><td class="m">OperatorDefinedDownloadAnswer</td><td>Op download</td><td>host writes</td></tr>
+        <tr><td class="m">LNS</td><td class="m">DownloadStatus</td><td>both downloads</td><td>target writes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>File bodies</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Class</th><th>Body layout after the 6-byte header</th></tr></thead>
+      <tbody>
+        <tr><td class="m">InitializationFile</td><td>uint16 acceptance code, then description string</td></tr>
+        <tr><td class="m">LoadConfigurationListFile</td><td>uint16 THW count; per THW: literal name, serial number, uint16 P/N count; per P/N: part number, amendment, part designation</td></tr>
+        <tr><td class="m">InformationOperationStatusFile</td><td>uint16 counter, uint16 status code, uint16 exception timer, int16 estimated time, description string</td></tr>
+        <tr><td class="m">DownloadOperationRequestFile</td><td>uint16 file count, N filename strings, uint8 UDD length, UDD bytes</td></tr>
+        <tr><td class="m">UploadOperationRequestFile</td><td>uint16 load count; per load: header filename, part number</td></tr>
+        <tr><td class="m">UploadOperationStatusFile</td><td>counter, status, ratio, exception timer, estimated time, description, then per-load status blocks</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>Every <code>decode()</code> ends with a check that no bytes remain (<code>"More data then expected"</code>), so a target sending vendor extensions past the defined fields will have its file rejected outright. §19 covers this if you need to tolerate it.</p>
+  </div>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> ProtocolFileLogger::logProtocolFile( prefix, filename, file )</span><span class="src">files/ProtocolFileLogger.cpp</span></summary>
+    <div class="fn-body">
+      <p>Enabled by <code>--log-protocol-files</code>. Writes every protocol file, in both directions, as a raw binary dump named <code>{ISO-8601 timestamp}_{operation}_{RX|TX}_{protocol filename}</code> into <code>loggingDirectoryV</code>. The directory defaults to the process working directory — the CLI never calls <code>loggingDirectory()</code>, so files land wherever the binary was run.</p>
+      <p>This is the single most useful diagnostic in the tool. When a target rejects a file or the host rejects a decode, the exact bytes are on disk.</p>
+    </div>
+  </details>
+</section>
+
+<section id="s15">
+  <span class="sec-no">15 — TFTP layer</span>
+  <h2>What ARINC 615A adds to TFTP</h2>
+  <div class="prose">
+    <p><code>lib/arinc_615a/tftp/</code> is a decorator over the generic <code>tftp</code> dependency. It adds three things and nothing else: extra option names, two overloaded uses of the TFTP error packet, and a retry layer above the TFTP retry layer.</p>
+  </div>
+
+  <h3>Option names on the wire</h3>
+  <div class="prose">
+    <p><code>Arinc615aOptions_name()</code> at <code>tftp/Arinc615aOptions.cpp</code> is the entire mapping. These strings go into the TFTP option-negotiation fields verbatim:</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th class="m">Wire name</th><th>Meaning</th><th class="m">Check value type</th></tr></thead>
+      <tbody>
+        <tr><td class="m">port</td><td>ARINC 615A-3 Port Option — host's dynamic TFTP server port</td><td class="m">—</td></tr>
+        <tr><td class="m">part number</td><td>Load part number for a data transfer (note the space)</td><td class="m">—</td></tr>
+        <tr><td class="m">checksum_1</td><td>CRC8</td><td class="m">Crc8</td></tr>
+        <tr><td class="m">checksum_2</td><td>CRC16</td><td class="m">Crc16</td></tr>
+        <tr><td class="m">checksum_3</td><td>CRC32</td><td class="m">Crc32</td></tr>
+        <tr><td class="m">checksum_4</td><td>MD5</td><td class="m">Md5</td></tr>
+        <tr><td class="m">checksum_5</td><td>SHA1</td><td class="m">Sha1</td></tr>
+        <tr><td class="m">checksum_6</td><td>SHA256</td><td class="m">Sha256</td></tr>
+        <tr><td class="m">checksum_7</td><td>SHA512</td><td class="m">Sha512</td></tr>
+        <tr><td class="m">checksum_8</td><td>CRC64</td><td class="m">Crc64</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p><code>Arinc615aOptions_checksum()</code> extracts whichever checksum option is present, and returns <code>{ false, {} }</code> — a negotiation failure — if <strong>more than one</strong> checksum option appears, or if the value fails to parse into a valid <code>Arinc649::CheckValue</code>. Exactly zero or one is legal.</p>
+  </div>
+
+  <h3>Error packets carry protocol semantics</h3>
+  <div class="prose">
+    <p>ARINC 615A overloads the TFTP error packet, with error code <code>NotDefined</code> and a structured message, to carry two protocol events. <code>ErrorMessage_type()</code> classifies them:</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th class="m">Message</th><th>Meaning</th><th>Host reaction</th></tr></thead>
+      <tbody>
+        <tr><td class="m">WAIT:&lt;seconds&gt;</td><td>Target is busy; retry after the stated delay</td><td>Arm a timer, call <code>operationDeferredHandler</code>, retry <strong>without</strong> consuming a retry</td></tr>
+        <tr><td class="m">ABORT:&lt;4 hex digits&gt;</td><td>Target is terminating with this ARINC 615A status code</td><td>Map to <code>OperationAbortedByDlp</code> or <code>…ByOperator</code> and complete</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p><code>ErrorMessage_abort()</code> parses the four hex digits with <code>std::from_chars</code> base 16 and validates the result against the known status codes, returning <code>StatusCode::Invalid</code> for anything unrecognised. <code>ErrorMessage_wait()</code> parses base 10 into a <code>uint16_t</code> and returns <code>std::nullopt</code> on failure. Both are <code>noexcept</code>; malformed messages degrade to "not an ARINC 615A message" rather than throwing.</p>
+  </div>
+
+  <h3>The DLP retry layer</h3>
+  <figure>
+    <div class="fw">
+      <svg viewBox="0 0 700 340" role="img" aria-label="Decision flow inside the ARINC 615A TFTP client completion handler covering success, abort, wait and retry paths">
+        <defs>
+          <marker id="ar5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <rect x="250" y="10" width="180" height="32" rx="3" fill="none" stroke="currentColor"/>
+        <text class="sv-l" x="340" y="30" text-anchor="middle" fill="currentColor">handleCompletion(status)</text>
+
+        <!-- successful -->
+        <g fill="none" stroke="currentColor"><rect x="30" y="76" width="130" height="32" rx="3"/></g>
+        <text class="sv-m" x="95" y="96" text-anchor="middle" fill="currentColor">Successful</text>
+        <g fill="none" stroke="currentColor"><rect x="30" y="130" width="130" height="32" rx="3"/></g>
+        <text class="sv-s" x="95" y="150" text-anchor="middle" fill="currentColor">complete OK</text>
+
+        <!-- aborted -->
+        <g fill="none" stroke="currentColor"><rect x="190" y="76" width="120" height="32" rx="3"/></g>
+        <text class="sv-m" x="250" y="96" text-anchor="middle" fill="currentColor">Aborted</text>
+        <g fill="none" stroke="currentColor"><rect x="190" y="130" width="120" height="32" rx="3"/></g>
+        <text class="sv-s" x="250" y="150" text-anchor="middle" fill="currentColor">local abort</text>
+
+        <!-- request error -->
+        <g fill="none" stroke="currentColor"><rect x="340" y="76" width="140" height="32" rx="3"/></g>
+        <text class="sv-m" x="410" y="96" text-anchor="middle" fill="currentColor">RequestError</text>
+
+        <!-- error message classify -->
+        <g fill="none" stroke="currentColor" stroke-dasharray="4 3"><rect x="340" y="130" width="140" height="30" rx="3"/></g>
+        <text class="sv-s" x="410" y="149" text-anchor="middle" fill="currentColor">ErrorMessage_type</text>
+
+        <g fill="none" stroke="currentColor"><rect x="326" y="186" width="80" height="30" rx="3"/></g>
+        <text class="sv-s" x="366" y="205" text-anchor="middle" fill="currentColor">ABORT</text>
+        <g fill="none" stroke="#0C6B69" stroke-width="1.3"><rect x="420" y="186" width="80" height="30" rx="3"/></g>
+        <text class="sv-s" x="460" y="205" text-anchor="middle" fill="#0C6B69">WAIT</text>
+
+        <g fill="none" stroke="#0C6B69" stroke-width="1.3"><rect x="400" y="240" width="180" height="34" rx="3"/></g>
+        <text class="sv-s" x="490" y="256" text-anchor="middle" fill="#0C6B69">timer, then retry</text>
+        <text class="sv-s" x="490" y="269" text-anchor="middle" fill="#0C6B69" opacity="0.8">retry counter NOT incremented</text>
+
+        <!-- retry path -->
+        <g fill="none" stroke="currentColor"><rect x="520" y="76" width="150" height="32" rx="3"/></g>
+        <text class="sv-m" x="595" y="96" text-anchor="middle" fill="currentColor">other errors</text>
+        <g fill="none" stroke="currentColor"><rect x="520" y="130" width="150" height="46" rx="3"/></g>
+        <text class="sv-s" x="595" y="148" text-anchor="middle" fill="currentColor">++retriesV</text>
+        <text class="sv-s" x="595" y="163" text-anchor="middle" fill="currentColor" opacity="0.75">&gt; dlpRetries ?</text>
+
+        <g fill="none" stroke="currentColor"><rect x="520" y="200" width="150" height="32" rx="3"/></g>
+        <text class="sv-s" x="595" y="220" text-anchor="middle" fill="currentColor">CommunicationError</text>
+
+        <g stroke="currentColor" stroke-width="1.1" marker-end="url(#ar5)">
+          <path d="M280 42 L95 42 L95 72" fill="none"/>
+          <path d="M300 42 L250 42 L250 72" fill="none"/>
+          <line x1="400" y1="42" x2="405" y2="72"/>
+          <path d="M400 42 L595 42 L595 72" fill="none"/>
+          <line x1="95" y1="108" x2="95" y2="126"/>
+          <line x1="250" y1="108" x2="250" y2="126"/>
+          <line x1="410" y1="108" x2="410" y2="126"/>
+          <line x1="380" y1="160" x2="368" y2="182"/>
+          <line x1="595" y1="108" x2="595" y2="126"/>
+          <line x1="595" y1="176" x2="595" y2="196"/>
+          <path d="M366 216 L366 300 L595 300 L595 236" fill="none"/>
+        </g>
+        <g stroke="#0C6B69" stroke-width="1.2" marker-end="url(#ar5)">
+          <line x1="440" y1="160" x2="456" y2="182"/>
+          <line x1="470" y1="216" x2="480" y2="236"/>
+        </g>
+        <text class="sv-s" x="380" y="316" fill="currentColor" opacity="0.65">unrecognised ABORT falls through to the retry path</text>
+      </svg>
+    </div>
+    <figcaption>The teal path is what makes WAIT different from every other failure: it re-issues the request after the target's stated delay without spending a retry, so a busy target cannot exhaust the counter.</figcaption>
+  </figure>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">void</span> Tftp::Clients::OperationImpl::handleCompletion( ::Tftp::TransferStatus status )</span><span class="src">tftp/clients/implementation/OperationImpl.cpp:155</span></summary>
+    <div class="fn-body">
+      <p>The function the diagram describes. Success clears the operation and error information and reports <code>TransferStatus::Successful</code>. <code>Aborted</code> reports a local abort. <code>RequestError</code> is classified as ABORT, WAIT, or neither.</p>
+      <p>ABORT handling is conditional on <code>handleAbortV</code>, and only two status codes are honoured — <code>OperationAbortedByDlp</code> and <code>OperationAbortedByOperator</code>. Any other abort code logs <code>"Invalid ABORT status code"</code> and <strong>falls through to the retry path</strong>, which is why the diagram has that long return edge.</p>
+      <p>Everything that reaches the bottom increments <code>retriesV</code> and re-issues via <code>tftpOperation()</code> until <code>retriesV &gt; dlpRetriesV</code>, at which point it reports <code>CommunicationError</code>.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">bool</span> Tftp::Clients::OperationImpl::handleOptionNegotiation( ::Tftp::Packets::Options&amp; serverOptions )</span><span class="src">tftp/clients/implementation/OperationImpl.cpp:115</span></summary>
+    <div class="fn-body">
+      <p>Destructively extracts the ARINC 615A options from the server's option map — port, part number, checksum — leaving only generic TFTP options behind. Anything left over that the generic TFTP layer does not recognise will abort the transfer, which is how unknown options are rejected without an explicit check here.</p>
+      <p>The assembled <code>Arinc615aOptions</code> is then handed to the operation-specific <code>optionNegotiationHandlerV</code> — the strict validators in §9 and §11.</p>
+    </div>
+  </details>
+
+  <details class="fn">
+    <summary><span class="fn-sig"><span class="rt">::Tftp::Clients::OperationPtr</span> ReadOperationImpl::tftpOperation()</span><span class="src">tftp/clients/implementation/ReadOperationImpl.cpp</span></summary>
+    <div class="fn-body">
+      <p>Called once per attempt — including every retry — so each retry rebuilds the underlying TFTP operation from scratch. Assembles <code>additionalOptions</code> from the port, part number, and checksum if set, then configures the real TFTP read with <code>TransferMode::OCTET</code>, the two ARINC 615A handlers, the data sink, and a local endpoint bound to port 0.</p>
+    </div>
+  </details>
+</section>
+
+<section id="s16">
+  <span class="sec-no">16 — Timeout &amp; abort</span>
+  <h2>Three timers, two abort modes</h2>
+  <div class="prose">
+    <p>Timeouts nest. Understanding which layer fired is most of diagnosing a stalled load.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Timer</th><th class="m">Default</th><th>Scope</th><th class="m">Option</th></tr></thead>
+      <tbody>
+        <tr><td>TFTP packet timeout</td><td class="m">2 s</td><td>One TFTP packet; retried <code>tftpRetries</code> times</td><td class="m">--tftp-timeout</td></tr>
+        <tr><td>DLP retry</td><td class="m">1</td><td>Whole TFTP transfer, re-issued from scratch</td><td class="m">--dlp-retries</td></tr>
+        <tr><td>DLP timeout</td><td class="m">13 s</td><td>Watchdog on the whole operation; re-armed by each status file</td><td class="m">--dlp-timeout</td></tr>
+        <tr><td>FIND receive window</td><td class="m">3 s</td><td>FIND only; fixed listening period</td><td class="m">--timeout</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>The DLP timeout is the only one that ends an operation unconditionally. Its effective value is <code>max( exceptionTimer, dlpTimeout )</code>, so a target that advertises a long exception timer extends the window but can never shrink it below the configured value. Defaults are declared in <code>Arinc615a.hpp</code> as <code>DefaultArinc615aTftpTimeout</code>, <code>DefaultArinc615aTftpRetries</code>, <code>DefaultArinc615aDlpTimeout</code>, and <code>DefaultArinc615aDlpRetries</code>.</p>
+    <div class="note">
+      <span class="lbl">Documentation mismatch</span>
+      <p>The manpage states <code>--dlp-retries</code> defaults to 2; the source constant <code>DefaultArinc615aDlpRetries</code> is <code>1</code>. The source is authoritative.</p>
+    </div>
+
+    <h3>Abort versus terminate</h3>
+    <ul class="tight">
+      <li><strong>Abort</strong> (first Ctrl-C, or <code>AbortReason::Protocol</code> raised internally) records the reason and waits. Delivery happens at the next status-file request via <code>isAborted()</code>, which sends an ARINC 615A ABORT error and lets the target close the operation with its own final status. Idempotent.</li>
+      <li><strong>Terminate</strong> (second Ctrl-C) calls <code>finished()</code> directly with a locally synthesised status. Not idempotent — see §22.</li>
+    </ul>
+    <p>If the target has gone silent, abort never delivers, and the operation ends on the DLP timeout instead. Pressing Ctrl-C twice is the intended escape.</p>
+  </div>
+</section>
+
+<section id="s17">
+  <span class="sec-no">17 — Status codes</span>
+  <h2>Status code reference</h2>
+  <div class="prose">
+    <p>Declared in <code>Arinc615a.hpp</code>. These values appear in status files, in initialisation responses, and inside <code>ABORT:</code> error messages.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th class="m">Value</th><th class="m">Enumerator</th><th>Meaning</th><th>Terminal</th></tr></thead>
+      <tbody>
+        <tr><td class="m">0x0001</td><td class="m">OperationAccepted</td><td>Accepted, not yet started</td><td>no</td></tr>
+        <tr><td class="m">0x0002</td><td class="m">OperationInProgress</td><td>Running; exception timer valid</td><td>no</td></tr>
+        <tr><td class="m">0x0003</td><td class="m">OperationCompleted</td><td>Completed without error</td><td>yes</td></tr>
+        <tr><td class="m">0x0004</td><td class="m">OperationInProgressAdditionalInfo</td><td>Running, with description text (615A-3+)</td><td>no</td></tr>
+        <tr><td class="m">0x1000</td><td class="m">OperationNotAccepted</td><td>Denied — initialisation response only</td><td>yes</td></tr>
+        <tr><td class="m">0x1002</td><td class="m">OperationNotSupported</td><td>Not supported — initialisation response only</td><td>yes</td></tr>
+        <tr><td class="m">0x1003</td><td class="m">OperationAbortedByTargetHw</td><td>Target aborted</td><td>yes</td></tr>
+        <tr><td class="m">0x1004</td><td class="m">OperationAbortedByDlp</td><td>Data loader aborted</td><td>yes</td></tr>
+        <tr><td class="m">0x1005</td><td class="m">OperationAbortedByOperator</td><td>Operator aborted</td><td>yes</td></tr>
+        <tr><td class="m">0x1007</td><td class="m">LoadPartNumberOrDownloadFileFailed</td><td>Per-file or per-load failure inside a status file</td><td>per item</td></tr>
+        <tr><td class="m">0xFFFE</td><td class="m">OperationDeferred</td><td><strong>Internal only</strong> — signals a WAIT response, never on the wire</td><td>no</td></tr>
+        <tr><td class="m">0xFFFF</td><td class="m">Invalid</td><td>Sentinel for parse failure</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p><code>statusCode( uint16_t )</code> at <code>StatusCode.cpp</code> validates on decode and <strong>throws <code>Arinc615aException</code></strong> for any value not in this table — including <code>OperationDeferred</code>, which is why that code can never legally arrive from a target. <code>status( OperationClass, StatusCode, description, … )</code> renders the human-readable sentences used in log output.</p>
+  </div>
+</section>
+
+<section id="s18">
+  <span class="sec-no">18 — DRF generator</span>
+  <h2>arinc_615a_download_request_file</h2>
+  <div class="prose">
+    <p>A single-file utility that writes a <code>.LNR</code> download request file to disk without touching the network. Useful for preparing request files that a different tool or a media-based workflow will deliver, and for producing known-good inputs when testing a target.</p>
+    <p>Its <code>main()</code> at <code>arinc_615a_download_request_file.cpp</code> parses five options, builds a <code>Files::DownloadOperationRequestFile</code>, appends each <code>--download-file</code> via <code>requestFile.file()</code>, attaches <code>--user-defined-data</code> as raw bytes, and writes the encoded result with a binary <code>std::fstream</code>.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th class="m">Option</th><th>Required</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="m">-f, --filename</td><td>yes</td><td>Output path for the generated file</td></tr>
+        <tr><td class="m">--download-file</td><td>yes</td><td>Multitoken — repeat or list to add several filenames</td></tr>
+        <tr><td class="m">--user-defined-data</td><td>no</td><td>Copied verbatim as bytes; max 255</td></tr>
+        <tr><td class="m">--arinc615a-version</td><td>no</td><td><code>A3</code> = 615A-2 (default), <code>A4</code> = 615A-3/4</td></tr>
+        <tr><td class="m">-l, --log-level</td><td>no</td><td>Defaults to <code>warn</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note warn">
+    <span class="lbl">Not built in this variant</span>
+    <p><code>app/CMakeLists.txt</code> no longer contains <code>add_subdirectory( arinc_615a_download_request_file )</code>, so this tool is not produced by the build described in §20. The sources are still present under <code>app/arinc_615a_download_request_file/</code>; add that line back to <code>app/CMakeLists.txt</code> and reconfigure to build it. The same applies to <code>arinc_615a_test_tha</code> and <code>arinc_615a_unit_test</code>.</p>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">Quirk</span>
+    <p><code>--help</code> returns <code>EXIT_FAILURE</code>, not success. Scripts that treat a zero exit from <code>--help</code> as a capability probe will misread this binary.</p>
+  </div>
+</section>
+
+<section id="s19">
+  <span class="sec-no">19 — Customisation</span>
+  <h2>Where to change things for your application</h2>
+  <div class="prose">
+    <p>Most adaptation is a command-line option and needs no rebuild. The rest is a small number of specific constants and tables. This section is ordered by how invasive the change is.</p>
+  </div>
+
+  <h3>Tier 1 — runtime options, no rebuild</h3>
+  <div class="prose">
+    <p>Every field below is a member of <code>Arinc615aConfiguration</code> or a per-command variable, and every one is settable on the command line. The <em>Field</em> column names the C++ member, so you can trace it into the code from here.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>What you are changing</th><th class="m">Option</th><th class="m">Field</th><th class="m">Default</th></tr></thead>
+      <tbody>
+        <tr><td>Which target you talk to</td><td class="m">--target-address</td><td class="m">targetAddressV</td><td class="m">—</td></tr>
+        <tr><td>Which target ID names the protocol files</td><td class="m">--target-id</td><td class="m">targetIdV</td><td class="m">— (required)</td></tr>
+        <tr><td>Which NIC the host TFTP server binds to</td><td class="m">--local-tftp-address</td><td class="m">localInterfaceAddress</td><td class="m">0.0.0.0</td></tr>
+        <tr><td>Target TFTP port</td><td class="m">--server-port</td><td class="m">tftpConfiguration.tftpServerPort</td><td class="m">59</td></tr>
+        <tr><td>Per-packet TFTP timeout</td><td class="m">--tftp-timeout</td><td class="m">tftpConfiguration.tftpTimeout</td><td class="m">2 s</td></tr>
+        <tr><td>TFTP dally on last ACK</td><td class="m">--dally</td><td class="m">tftpConfiguration.dally</td><td class="m">—</td></tr>
+        <tr><td>Whole-transfer retries</td><td class="m">--dlp-retries</td><td class="m">dlpRetries</td><td class="m">1</td></tr>
+        <tr><td>Operation watchdog</td><td class="m">--dlp-timeout</td><td class="m">dlpTimeoutV</td><td class="m">13 s</td></tr>
+        <tr><td>TFTP block size negotiation</td><td class="m">--block-size-option</td><td class="m">tftpOptionsConfiguration</td><td class="m">1486 if bare</td></tr>
+        <tr><td>TFTP timeout option negotiation</td><td class="m">--timeout-option</td><td class="m">tftpOptionsConfiguration</td><td class="m">2 s if bare</td></tr>
+        <tr><td>Transfer-size option handling</td><td class="m">--handle-transfer-size-option</td><td class="m">tftpOptionsConfiguration</td><td class="m">true</td></tr>
+        <tr><td>Dynamic host port (615A-3)</td><td class="m">--port-option</td><td class="m">portOptionV</td><td class="m">off</td></tr>
+        <tr><td>Dump every protocol file</td><td class="m">--log-protocol-files</td><td class="m">protocolFileLogging</td><td class="m">off</td></tr>
+        <tr><td>Log verbosity, all libraries</td><td class="m">--log-level</td><td class="m">—</td><td class="m">warn</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">There is no config file</span>
+    <p><code>Arinc615aConfiguration::fromProperties()</code> and <code>toProperties()</code> exist and read JSON keys <code>local_tftp_address</code>, <code>dlp_retries</code>, <code>tftp</code>, <code>tftp_options</code>, <code>protocol_file_logging</code> — but <strong>the CLI never calls them</strong>. They serve the GUI and the test target application. If you want a config file for the CLI, that is the hook to wire up: parse the JSON in <code>execute()</code> before <code>notify()</code> and let command-line options override it.</p>
+  </div>
+
+  <div class="prose">
+    <h3>Tier 2 — your data, not the code</h3>
+    <p>Three inputs are files you author, not code you edit:</p>
+    <ul class="tight">
+      <li><strong>Targets list JSON</strong> — produced by <code>Find --targets-list</code>, consumed by every other command. Structure comes from <code>TargetInformation::toProperties()</code>: an array of <code>target</code> objects each with <code>address</code>, <code>thwId</code>, <code>thwTypeName</code>, <code>thwPosition</code>, <code>literalName</code>, <code>manufacturerCode</code>. You can hand-write this file for targets that do not answer FIND — only <code>address</code>, <code>thwId</code>, and <code>thwPosition</code> actually matter, since the lookup key is <code>TargetId{ thwId, thwPosition }</code>.</li>
+      <li><strong>ARINC 665 media set</strong> — the load headers and part numbers uploaded by <code>Upload</code>. Managed by the <code>arinc_665</code> commands in the same binary.</li>
+      <li><strong>Download request file</strong> — generate with the §18 tool, or let <code>MedDownload --file</code> build it in memory.</li>
+    </ul>
+  </div>
+
+  <h3>Tier 3 — source changes, rebuild required</h3>
+  <div class="prose">
+    <p>Each row names the exact file and symbol. These are the points where the implementation encodes an assumption that your hardware might not share.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>If you need to…</th><th class="m">Edit</th><th>What to change</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Accept Target IDs your hardware reports that are shorter, longer, or contain non-alphanumerics</td>
+          <td class="m">TargetId.hpp:39–48</td>
+          <td><code>ThwIdSizeMin</code> 4, <code>ThwIdSizeMax</code> 15, <code>PositionSizeMin</code> 0, <code>PositionSizeMax</code> 8. For non-alphanumerics you must also relax <code>isCompliant()</code> in <code>TargetId.cpp</code>, which currently requires <code>isalnum</code> in the C locale.</td>
+        </tr>
+        <tr>
+          <td>Change the Target ID separator from <code>_</code></td>
+          <td class="m">TargetId.cpp</td>
+          <td><code>splitTargetId()</code> hard-codes <code>find('_')</code>. Also update the formatter that rebuilds the string.</td>
+        </tr>
+        <tr>
+          <td>Use vendor-specific protocol file extensions</td>
+          <td class="m">ProtocolFilename.cpp:148</td>
+          <td>The <code>extensionTypeInfoIndex()</code> static table maps twelve extensions to <code>ProtocolFileType</code>. Both directions come from this one table — change it and filename generation and parsing stay consistent.</td>
+        </tr>
+        <tr>
+          <td>Change the default protocol version written into files you generate</td>
+          <td class="m">Arinc615a.hpp</td>
+          <td><code>Arinc615aVersion</code>: <code>Arinc615a2</code>=0x4133, <code>Arinc615a34</code>=0x4134. Note the host normally <em>latches</em> the version from the target's initialisation file, so this only affects the offline generator (§18) and its <code>--arinc615a-version</code> default.</td>
+        </tr>
+        <tr>
+          <td>Accept ARINC 615A-1 (<code>A2</code>, 0x4132) protocol files</td>
+          <td class="m">ProtocolFile.cpp:77–86</td>
+          <td><code>decodeHeader()</code> whitelists only <code>Arinc615a2</code> and <code>Arinc615a34</code>. Add the case — but supplement 1 has different field semantics, so verify each decoder too.</td>
+        </tr>
+        <tr>
+          <td>Tolerate targets that append vendor data past the defined fields</td>
+          <td class="m">every files/*.cpp decode()</td>
+          <td>Each <code>decode()</code> ends with a check that no bytes remain and throws <code>"More data then expected"</code>. Relax to a warning per file type you need to accept.</td>
+        </tr>
+        <tr>
+          <td>Change the FIND port or the answer field set</td>
+          <td class="m">find/Find.hpp:47<br>find/packets/Packets.hpp:58</td>
+          <td><code>DefaultPort</code> = 1001 and <code>DefaultReceiveTimeout</code> = 3 s. The five answer fields and their order come from the <code>ParameterList</code> enum; <code>QueryImpl.cpp:235</code> rejects any answer whose count is not exactly <code>ParameterList::Last</code>.</td>
+        </tr>
+        <tr>
+          <td>Change the default timing constants baked into <code>--help</code></td>
+          <td class="m">Arinc615a.hpp</td>
+          <td><code>DefaultArinc615aTftpPort</code> 59, <code>DefaultArinc615aTftpTimeout</code> 2 s, <code>DefaultArinc615aTftpRetries</code> 1, <code>DefaultArinc615aDlpTimeout</code> 13 s, <code>DefaultArinc615aDlpRetries</code> 1.</td>
+        </tr>
+        <tr>
+          <td>Change or extend the checksum option names</td>
+          <td class="m">tftp/Arinc615aOptions.cpp</td>
+          <td>Both <code>Arinc615aOptions_name()</code> overloads. The <code>KnownOptions</code> enum in <code>Arinc615a.hpp</code> must gain a matching entry, and <code>Arinc615aOptions_checksum()</code> must include the new type in its scan list.</td>
+        </tr>
+        <tr>
+          <td>Send protocol file dumps somewhere other than the working directory</td>
+          <td class="m">host/implementation/*Impl.cpp constructors</td>
+          <td>Each constructor calls <code>protocolFileLogger().loggingEnabled(…).operation(…)</code> but never <code>.loggingDirectory(…)</code>. Add that call — and expose it as an option alongside <code>--log-protocol-files</code>.</td>
+        </tr>
+        <tr>
+          <td>Fix the unusable <code>-l</code> short flag</td>
+          <td class="m">9 command .cpp files</td>
+          <td>Rename <code>"targets-list,l"</code> to a free letter in all nine. See §22.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Adding a command of your own</h3>
+  <div class="prose">
+    <p>The pattern is mechanical. Four steps:</p>
+    <ol class="steps">
+      <li>Write <code>MyCommand</code> in <code>lib/arinc_615a_commands/operations/</code>, privately inheriting the handler interface for the operation class you need. Follow the §7 skeleton exactly.</li>
+      <li>Add both files to the <code>target_sources()</code> list in <code>lib/arinc_615a_commands/CMakeLists.txt</code>.</li>
+      <li>In <code>Operations::registerCommands()</code> (<code>operations/Operations.cpp:27</code>), construct it and call <code>registry-&gt;command( "MyName", "description", bind_front(&amp;MyCommand::execute, ptr), bind_front(&amp;MyCommand::help, ptr) )</code>.</li>
+      <li>Add a manpage <code>.adoc</code> under <code>doc/arinc_615a_manpage/</code> and register it in that directory's <code>CMakeLists.txt</code> if you want it installed.</li>
+    </ol>
+    <p>If your command needs protocol behaviour that none of the four operations provide, the extension point is a new <code>OperationImpl</code> subclass plus a factory method on <code>Host::Protocol</code> and <code>ProtocolImpl</code> — the pattern in <code>host/implementation/ProtocolImpl.cpp</code>.</p>
+  </div>
+</section>
+
+<section id="s20">
+  <span class="sec-no">20 — Building</span>
+  <h2>Building the CLI, command by command</h2>
+  <div class="prose">
+    <p class="lede">This tree has been reduced to a CLI-only variant. One executable is built: <code>arinc_615a_operation</code>. Everything below is a single command, what it does, and how to tell it worked before you run the next one.</p>
+  </div>
+
+  <div class="note">
+    <span class="lbl">What the variant excludes</span>
+    <p><code>lib/CMakeLists.txt</code> now adds only <code>arinc_615a</code> and <code>arinc_615a_commands</code>; <code>app/CMakeLists.txt</code> adds only <code>arinc_615a_operation</code>. The Qt library directories are gone, and <code>qt_icon_resources</code> has been dropped from the <code>FetchContent</code> set — five dependencies remain: <code>helper</code>, <code>arinc_649</code>, <code>arinc_665</code>, <code>tftp</code>, <code>commands</code>. The <code>vcpkg.json</code> manifest no longer declares a <code>with-qt</code> feature.</p>
+    <p>The sources for <code>arinc_615a_download_request_file</code>, <code>arinc_615a_test_tha</code>, and <code>arinc_615a_unit_test</code> are still on disk under <code>app/</code> but are no longer referenced by any <code>add_subdirectory()</code>, so they will not build. §18 explains how to re-enable the request-file generator if you want it.</p>
+  </div>
+
+  <h3>Step 0 — check the toolchain, one command at a time</h3>
+  <div class="prose">
+    <p>Run these four before configuring. Each failure has a distinct fix, and a bad result here produces a confusing error much later.</p>
+  </div>
+
+  <ol class="steps">
+    <li>
+      <strong>CMake version.</strong> Must report <strong>4.3 or higher</strong> — every <code>CMakeLists.txt</code> in this tree declares <code>cmake_minimum_required( VERSION 4.3 )</code>.
+      <pre><code>cmake --version</code></pre>
+      If this reports 3.x you cannot proceed. The CMake bundled inside Visual Studio 2022 is 3.31 and is <em>not</em> sufficient; install CMake separately and make sure it precedes the VS copy on <code>PATH</code>.
+    </li>
+    <li>
+      <strong>Ninja.</strong> Every preset in this repository sets <code>"generator": "Ninja"</code>, so Ninja must be on <code>PATH</code>. There is no Makefile or Visual Studio solution preset.
+      <pre><code>ninja --version</code></pre>
+    </li>
+    <li>
+      <strong>Compiler.</strong> The targets request <code>cxx_std_23</code>, so you need GCC 14+, Clang 18+, or MSVC 19.4x.
+      <pre><code>g++ --version        # or: clang++ --version, or: cl</code></pre>
+    </li>
+    <li>
+      <strong>Dependency host reachability.</strong> Configure will clone five repositories from <code>git.thomas-vogt.de</code>. Confirm you can reach it before waiting on a configure that will fail.
+      <pre><code>git ls-remote --heads https://git.thomas-vogt.de/thomas-vogt/helper.git</code></pre>
+      A commit hash and <code>refs/heads/main</code> means you are fine. A timeout or auth prompt means you need the offline path at the end of this section.
+    </li>
+  </ol>
+
+  <h3>Track A — Linux with GCC</h3>
+
+  <ol class="steps">
+    <li>
+      <strong>Install the system dependencies.</strong> Boost, libxml++, and spdlog are found by <code>find_package</code>, not fetched.
+      <pre><code>sudo apt install -y build-essential g++-14 ninja-build git pkg-config \
+     libboost-all-dev libxml++2.6-dev libspdlog-dev</code></pre>
+      On Fedora or RHEL substitute <code>dnf install gcc-c++ ninja-build boost-devel libxml++-devel spdlog-devel</code>.
+    </li>
+    <li>
+      <strong>Change into the source root.</strong> Presets are resolved relative to the directory holding <code>CMakePresets.json</code>, so every later command assumes you are here.
+      <pre><code>cd arinc_615a-main</code></pre>
+    </li>
+    <li>
+      <strong>List the presets</strong> to confirm CMake parses them and to see the exact names available to you.
+      <pre><code>cmake --list-presets</code></pre>
+      You should see sixteen configure presets: four each of <code>gcc-</code>, <code>clang-</code>, <code>msvc-</code>, and <code>mingw-cross-</code>. The <code>msvc-</code> entries are conditioned on a Windows host and will be hidden on Linux.
+    </li>
+    <li>
+      <strong>Configure.</strong> This is the long step: it clones the five dependencies, runs every <code>find_package</code>, and writes the Ninja build files.
+      <pre><code>cmake --preset gcc-shared-release</code></pre>
+      Creates <code>cmake-build-gcc-shared-release/</code>. Success ends with <code>-- Generating done</code> and <code>-- Build files have been written to: …</code>. Anything else, stop and read §"When a step fails" below rather than re-running.
+    </li>
+    <li>
+      <strong>Build.</strong> The build preset name matches the configure preset name.
+      <pre><code>cmake --build --preset gcc-shared-release</code></pre>
+      Add <code>-j$(nproc)</code> if Ninja is not already saturating your cores. To build the single executable and skip everything not needed to link it, target it by name instead:
+      <pre><code>cmake --build cmake-build-gcc-shared-release --target arinc_615a_operation</code></pre>
+    </li>
+    <li>
+      <strong>Confirm the binary exists</strong> and is the architecture you expect.
+      <pre><code>ls -l cmake-build-gcc-shared-release/app/arinc_615a_operation/arinc_615a_operation
+file  cmake-build-gcc-shared-release/app/arinc_615a_operation/arinc_615a_operation</code></pre>
+    </li>
+    <li>
+      <strong>Run it once with no arguments.</strong> This prints the banner and the usage text — and settles the <code>--command</code> versus <code>--operation</code> question from §5 for your build.
+      <pre><code>./cmake-build-gcc-shared-release/app/arinc_615a_operation/arinc_615a_operation</code></pre>
+      Expect <code>ARINC 615A Operation - &lt;version&gt;</code> followed by the list of registered command names.
+    </li>
+    <li>
+      <strong>Install</strong> into the preset's install tree. This also gathers the shared libraries declared through <code>RUNTIME_DEPENDENCY_SET arinc_615a-runtime-deps</code>.
+      <pre><code>cmake --install cmake-build-gcc-shared-release</code></pre>
+      Lands in <code>cmake-install-gcc-shared-release/</code>. Pass <code>--prefix /usr/local</code> to install elsewhere, and <code>--component runtime</code> to take only the binaries and their libraries without the documentation.
+    </li>
+  </ol>
+
+  <div class="note">
+    <span class="lbl">Want one file you can copy to another machine?</span>
+    <p>Use the static preset instead. <code>cmake --preset gcc-static-release</code> then <code>cmake --build --preset gcc-static-release</code> leaves <code>BUILD_SHARED_LIBS</code> off, so the project's own libraries are archived into the executable and there is no <code>cmake-install</code> dance to get the <code>.so</code> files alongside it. System libraries such as Boost are still linked dynamically unless your distribution ships static variants.</p>
+  </div>
+
+  <h3>Track B — Windows with MSVC and vcpkg</h3>
+  <div class="prose">
+    <p>The <code>msvc-</code> presets set <code>toolchainFile</code> to <code>$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake</code>, so <code>VCPKG_ROOT</code> must be set before you configure — that is the single most common first-run failure on Windows.</p>
+  </div>
+
+  <ol class="steps">
+    <li>
+      <strong>Clone vcpkg</strong> somewhere permanent. Do this once per machine, not once per project.
+      <pre><code>git clone https://github.com/microsoft/vcpkg.git C:\vcpkg</code></pre>
+    </li>
+    <li>
+      <strong>Bootstrap it.</strong> Builds <code>vcpkg.exe</code> from the cloned sources.
+      <pre><code>C:\vcpkg\bootstrap-vcpkg.bat</code></pre>
+    </li>
+    <li>
+      <strong>Set <code>VCPKG_ROOT</code> permanently</strong> so the preset can expand it.
+      <pre><code>setx VCPKG_ROOT C:\vcpkg</code></pre>
+      <code>setx</code> affects <em>new</em> shells only. Close and reopen your terminal, then confirm with <code>echo %VCPKG_ROOT%</code> before continuing.
+    </li>
+    <li>
+      <strong>Open a Developer Command Prompt for VS 2022</strong>, or import the MSVC environment into your current shell. Without this, CMake will not find <code>cl.exe</code>.
+      <pre><code>"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"</code></pre>
+    </li>
+    <li>
+      <strong>Confirm the compiler is now visible.</strong>
+      <pre><code>where cl
+cl</code></pre>
+      <code>cl</code> with no arguments prints its version banner. Anything else means step 4 did not take effect in this shell.
+    </li>
+    <li>
+      <strong>Change into the source root.</strong>
+      <pre><code>cd arinc_615a-main</code></pre>
+    </li>
+    <li>
+      <strong>Configure.</strong> vcpkg reads <code>vcpkg.json</code> automatically in manifest mode and builds Boost, libxml++, pkgconf, and spdlog into the build tree. Expect this to take a long time on a cold vcpkg cache — tens of minutes is normal, and almost all of it is Boost.
+      <pre><code>cmake --preset msvc-shared-release</code></pre>
+    </li>
+    <li>
+      <strong>Build.</strong>
+      <pre><code>cmake --build --preset msvc-shared-release</code></pre>
+    </li>
+    <li>
+      <strong>Confirm and run.</strong>
+      <pre><code>dir cmake-build-msvc-shared-release\app\arinc_615a_operation\arinc_615a_operation.exe
+cmake-build-msvc-shared-release\app\arinc_615a_operation\arinc_615a_operation.exe</code></pre>
+    </li>
+    <li>
+      <strong>Install,</strong> which is what collects the dependent DLLs next to the executable.
+      <pre><code>cmake --install cmake-build-msvc-shared-release</code></pre>
+      Note the presets set <code>VCPKG_APPLOCAL_DEPS=OFF</code>, so vcpkg does <em>not</em> copy DLLs beside the binary at build time. If you skip the install step and run straight from the build tree, expect missing-DLL errors — use the install tree, or build a <code>msvc-static-release</code> variant instead.
+    </li>
+  </ol>
+
+  <h3>Track C — cross-compiling for Windows from Linux</h3>
+  <ol class="steps">
+    <li>
+      <strong>Install the MinGW-w64 toolchain.</strong>
+      <pre><code>sudo apt install -y mingw-w64</code></pre>
+    </li>
+    <li>
+      <strong>Configure with the cross preset,</strong> which points CMake at <code>mingw64-cross-toolchain.cmake</code> in the repository root.
+      <pre><code>cmake --preset mingw-cross-shared-release</code></pre>
+    </li>
+    <li>
+      <strong>Build.</strong> The CLI target explicitly links <code>wsock32</code> and <code>ws2_32</code>, which MinGW requires and MSVC links implicitly — so this works where a naive cross build would fail at link time.
+      <pre><code>cmake --build --preset mingw-cross-shared-release</code></pre>
+    </li>
+  </ol>
+
+  <h3>Choosing a variant</h3>
+  <div class="prose">
+    <p>Each compiler family offers the same four. The only cache difference is <code>CMAKE_BUILD_TYPE</code> and <code>BUILD_SHARED_LIBS</code>.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th class="m">Preset suffix</th><th class="m">Build type</th><th class="m">BUILD_SHARED_LIBS</th><th>Use it when</th></tr></thead>
+      <tbody>
+        <tr><td class="m">-static-release</td><td class="m">Release</td><td class="m">off</td><td>Shipping a portable binary; simplest to deploy</td></tr>
+        <tr><td class="m">-shared-release</td><td class="m">Release</td><td class="m">on</td><td>Normal development; faster relink</td></tr>
+        <tr><td class="m">-static-debug</td><td class="m">Debug</td><td class="m">off</td><td>Stepping through with a debugger</td></tr>
+        <tr><td class="m">-shared-debug</td><td class="m">Debug</td><td class="m">on</td><td>Iterating on library code with symbols</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="prose">
+    <p>Append <code>-with-doc</code> to any <em>build</em> preset name to additionally generate the Doxygen and AsciiDoc output — <code>cmake --build --preset gcc-shared-release-with-doc</code>. That requires Doxygen and Asciidoctor and is unrelated to producing the binary.</p>
+  </div>
+
+  <h3>When a step fails</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Symptom</th><th>Failing step</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td class="m">CMake 4.3 or higher is required</td><td>configure</td><td>Your <code>cmake</code> is too old. Check <code>cmake --version</code>; the VS-bundled 3.31 does not qualify.</td></tr>
+        <tr><td class="m">Could not find toolchain file … vcpkg.cmake</td><td>configure (MSVC)</td><td><code>VCPKG_ROOT</code> is unset in <em>this</em> shell. <code>setx</code> only affects new shells — reopen the terminal.</td></tr>
+        <tr><td class="m">No CMAKE_CXX_COMPILER could be found</td><td>configure (MSVC)</td><td>You are not in a Developer Command Prompt. Run <code>vcvars64.bat</code>.</td></tr>
+        <tr><td class="m">CMake Error … generator Ninja not found</td><td>configure</td><td>Install Ninja and put it on <code>PATH</code>. Every preset requires it.</td></tr>
+        <tr><td>Hang or failure inside <code>FetchContent</code></td><td>configure</td><td><code>git.thomas-vogt.de</code> is unreachable. Use the offline path below.</td></tr>
+        <tr><td class="m">Could NOT find Boost / spdlog / LibXML++</td><td>configure</td><td>System packages missing (Linux) or vcpkg manifest install failed (Windows). Read the vcpkg log path printed in the error.</td></tr>
+        <tr><td>Build stops on a warning</td><td>build</td><td>All presets set <code>CMAKE_COMPILE_WARNING_AS_ERROR=True</code>. A newer compiler may warn where the authors' did not. Reconfigure with <code>-DCMAKE_COMPILE_WARNING_AS_ERROR=OFF</code> to triage.</td></tr>
+        <tr><td class="m">.dll not found</td><td>running (Windows)</td><td><code>VCPKG_APPLOCAL_DEPS</code> is off. Run <code>cmake --install</code> and use the install tree, or build a static preset.</td></tr>
+        <tr><td>Configure succeeds but nothing builds</td><td>build</td><td>Confirm <code>app/CMakeLists.txt</code> still contains <code>add_subdirectory( arinc_615a_operation )</code>. In this variant it is the only application wired in.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Building without network access</h3>
+  <div class="prose">
+    <p>The root <code>CMakeLists.txt</code> has an escape hatch built into each dependency declaration. For every dependency it checks <code>if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/&lt;name&gt; )</code> and, when that directory exists, sets <code>FETCHCONTENT_SOURCE_DIR_&lt;NAME&gt;</code> to it instead of cloning.</p>
+    <p>So on a machine with network access, clone the five repositories into the source root using exactly these directory names:</p>
+  </div>
+  <pre><code>cd arinc_615a-main
+git clone https://git.thomas-vogt.de/thomas-vogt/helper.git      helper
+git clone https://git.thomas-vogt.de/thomas-vogt/arinc-649.git   arinc-649
+git clone https://git.thomas-vogt.de/thomas-vogt/arinc_665.git   arinc_665
+git clone https://git.thomas-vogt.de/thomas-vogt/tftp.git        tftp
+git clone https://git.thomas-vogt.de/thomas-vogt/commands.git    commands</code></pre>
+  <div class="prose">
+    <p>Note <code>arinc-649</code> uses a hyphen while <code>arinc_665</code> uses an underscore — the directory names must match the <code>IS_DIRECTORY</code> checks exactly or the redirect silently does not happen and CMake clones anyway. Transfer the whole tree to the offline machine and configure normally.</p>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">Not yet verified end to end</span>
+    <p>These commands are derived from the presets and manifests in this tree, not from a completed build — no compiler toolchain was installed on the machine this document was written on. Treat your first configure and build as verification steps.</p>
+  </div>
+</section>
+
+<section id="s21">
+  <span class="sec-no">21 — Running</span>
+  <h2>Using the binaries</h2>
+  <div class="note warn">
+    <span class="lbl">Establish the selection flag first</span>
+    <p>Because the repository documents both <code>--command=</code> and <code>--operation=</code> (§5), run the bare binary once and read its own usage output before anything else. Every example below is written with <code>--operation=</code>, matching the manpages; substitute <code>--command=</code> if that is what your build reports.</p>
+  </div>
+  <pre><code># from the build tree produced in §20
+cd cmake-build-gcc-shared-release/app/arinc_615a_operation
+
+./arinc_615a_operation
+./arinc_615a_operation --operation=Information --help</code></pre>
+
+  <h3>A typical session</h3>
+  <div class="prose">
+    <p>Discover, then interrogate, then load — each step feeding the next through the targets list.</p>
+  </div>
+  <pre><code># 1. Discover every target on the subnet, saving what answers
+./arinc_615a_operation --operation=Find \
+    --target-address=192.168.1.255 \
+    --timeout=5 \
+    --targets-list=targets.json
+
+# 2. Re-read that list later without touching the network
+./arinc_615a_operation --operation=Targets --targets-list=targets.json
+
+# 3. Ask one target what software it is carrying
+./arinc_615a_operation --operation=Information \
+    --targets-list=targets.json \
+    --target-id=ABCDEF_123
+
+# 4. Upload two loads from a media set
+./arinc_615a_operation --operation=Upload \
+    --targets-list=targets.json \
+    --target-id=ABCDEF_123 \
+    --media-set-manager-dir=/srv/media-sets \
+    --media-set-pn=MS-00042 \
+    --load-header=LOAD1.LUH \
+    --load-header=LOAD2.LUH
+
+# 5. Pull files off the target
+./arinc_615a_operation --operation=MedDownload \
+    --targets-list=targets.json \
+    --target-id=ABCDEF_123 \
+    --file=FLIGHTLOG.DAT \
+    --download-base-directory=./downloads</code></pre>
+
+  <h3>Addressing a target directly</h3>
+  <pre><code># --target-address instead of a targets list; --target-id is always required
+./arinc_615a_operation --operation=Information \
+    --target-address=192.168.1.50 \
+    --target-id=ABCDEF_123</code></pre>
+  <div class="prose">
+    <p>When both are supplied, a Target ID found in the list <strong>overrides</strong> <code>--target-address</code> (§7, step 2). Supplying neither a resolvable list entry nor an address is the one hard error before any traffic.</p>
+  </div>
+
+  <h3>Diagnosing a failing load</h3>
+  <pre><code># Full verbosity plus a binary dump of every protocol file exchanged
+./arinc_615a_operation --operation=Information \
+    --target-address=192.168.1.50 \
+    --target-id=ABCDEF_123 \
+    --log-level=trace \
+    --log-protocol-files
+
+# Dumps land in the working directory as:
+#   2026-08-26T14-22-05+0000_Information_TX_ABCDEF_123.LCI
+#   2026-08-26T14-22-05+0000_Information_RX_ABCDEF_123.LCL</code></pre>
+  <div class="prose">
+    <p>Other levers worth knowing when a target misbehaves:</p>
+    <ul class="tight">
+      <li><code>--dlp-timeout=60</code> — for targets that take a long time between status files. Remember the effective window is <code>max(exception timer, this)</code>.</li>
+      <li><code>--port-option</code> — only for ARINC 615A-3 and later targets. If the target does not echo the option, the transfer aborts with <em>"Port option not accepted"</em>; rerun without it.</li>
+      <li><code>--block-size-option=512</code> — narrow the TFTP block size when an intermediate network drops larger datagrams.</li>
+      <li><code>--local-tftp-address=192.168.1.10</code> — pin the host TFTP server to one NIC on a multi-homed machine. Without it the server binds <code>0.0.0.0</code> and the target may answer to an address you did not intend.</li>
+      <li><code>--server-port</code> — only if your target listens somewhere other than the standard port 59. Binding port 59 on the host side needs privilege on Linux.</li>
+    </ul>
+  </div>
+
+  <h3>Generating a download request file offline</h3>
+  <pre><code>./arinc_615a_download_request_file \
+    --filename=ABCDEF_123.LNR \
+    --download-file FLIGHTLOG.DAT MAINTLOG.DAT \
+    --user-defined-data="bench run 7" \
+    --arinc615a-version=A4</code></pre>
+
+  <div class="note warn">
+    <span class="lbl">Exit codes do not report protocol outcome</span>
+    <p>A denied, aborted, or timed-out operation still exits <code>0</code> — only command-line parse failures produce a non-zero status (§7). To gate a script on success, match the printed <code>Final Status Code</code> line against <code>OperationCompleted</code> rather than testing <code>$?</code>.</p>
+  </div>
+
+  <h3>Stopping an operation</h3>
+  <div class="prose">
+    <p>One Ctrl-C requests a protocol abort: the host waits for the target's next status transfer, sends an ABORT error, and lets the target close out with a final status file. That can take up to the DLP timeout. A second Ctrl-C terminates immediately with a locally synthesised status. See §16.</p>
+  </div>
+</section>
+
+<section id="s22">
+  <span class="sec-no">22 — Findings</span>
+  <h2>Defects found while tracing</h2>
+  <div class="prose">
+    <p>Five issues, each confirmed by reading the source rather than inferred. Ordered by consequence.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th class="m">#</th><th>Finding</th><th class="m">Location</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="m">1</td>
+          <td><strong>Missing <code>return</code> after <code>finished()</code></strong> in the "operation completed which was not initiated" branch. Present correctly in the Information variant, absent in the other two.</td>
+          <td class="m">UploadOperationImpl.cpp:326<br>DownloadOperationImpl.cpp:162<br>(cf. InformationOperationImpl.cpp:189)</td>
+          <td>Control falls through and can reach <code>finished()</code> a second time. Because <code>finished()</code> has no guard, the command's <code>std::latch{1}</code> is counted down twice — undefined behaviour.</td>
+        </tr>
+        <tr>
+          <td class="m">2</td>
+          <td><strong><code>OperationImpl::finished()</code> is not idempotent.</strong> No state flag, no early return.</td>
+          <td class="m">host/implementation/OperationImpl.cpp:159</td>
+          <td>The amplifier for #1 and for a rapid double Ctrl-C via <code>doTerminate()</code>, which unlike <code>doAbort()</code> has no guard. A one-line <code>if (finishedV) return;</code> closes all of these.</td>
+        </tr>
+        <tr>
+          <td class="m">3</td>
+          <td><strong>Duplicate <code>-l</code> short option</strong> — <code>log-level,l</code> and <code>targets-list,l</code> declared in the same options description.</td>
+          <td class="m">18 sites across 9 command files, e.g. InformationOperationCommand.cpp:58 and :80</td>
+          <td><code>-l</code> is ambiguous and unusable; only the long forms work. Systemic — every command is affected.</td>
+        </tr>
+        <tr>
+          <td class="m">4</td>
+          <td><strong>Missing <code>return</code> after refusing a non-write TFTP request.</strong> The error is sent, then control falls into the file-type switch.</td>
+          <td class="m">InformationOperationImpl.cpp:103–107</td>
+          <td>A read request against the host during an Information operation is refused <em>and</em> processed, creating a TFTP operation for a transfer already rejected.</td>
+        </tr>
+        <tr>
+          <td class="m">5</td>
+          <td><strong>Unguarded completion handler in the FIND query.</strong> <code>timerHandler()</code> and <code>abort()</code> both invoke it unconditionally.</td>
+          <td class="m">find/clients/implementation/QueryImpl.cpp:118, 168</td>
+          <td>A Ctrl-C arriving after the FIND timer has already fired counts the latch down a second time. Narrow race, same UB as #1.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Documentation defects</h4>
+  <ul class="tight">
+    <li><strong>Command selection flag contradicts itself</strong> — <code>arinc_615a_operation.adoc</code> says <code>-c|--command</code>, every manpage says <code>--operation</code>. One is wrong and users cannot tell which without running the binary.</li>
+    <li><strong><code>--dlp-retries</code> default</strong> — manpage says 2, <code>DefaultArinc615aDlpRetries</code> is 1.</li>
+  </ul>
+
+  <h4>Observations, not defects</h4>
+  <ul class="tight">
+    <li><code>timerHandler()</code> carries <code>//! @todo cancel active transfers</code> — in-flight TFTP transfers are not cancelled when the DLP watchdog fires.</li>
+    <li>Exceptions caught inside <code>initialise()</code> are logged but produce no <code>finished()</code> call, so the CLI blocks until the DLP timeout rather than failing fast.</li>
+    <li>A list-file checksum mismatch is reported as one word on the console and never affects the exit code.</li>
+    <li><code>ProtocolFileLogger::loggingDirectory()</code> is never called by the CLI, so dumps land in the working directory.</li>
+    <li>FIND responses are not de-duplicated; a target answering twice appears twice in <code>targets.json</code>.</li>
+  </ul>
+</section>
+
+<section id="s23">
+  <span class="sec-no">23 — References</span>
+  <h2>Sources</h2>
+  <div class="prose">
+    <h4>Standards</h4>
+    <ul class="tight">
+      <li>ARINC Report 615A-4 — <em>Software Data Loader Using Ethernet Interfaces</em>, 2023-07-24. §6.4 defines the protocol filenames in §14.</li>
+      <li>ARINC Report 615A-3, 2007-06-30 — introduces the Port Option and Checksum Option handled in §15.</li>
+      <li>ARINC Report 615A-2, 2002-05-10 — renames SNIP to FIND (§8) and permits a declared string length longer than the text (§14).</li>
+      <li>ARINC Report 665-5 — <em>Loadable Software Standards</em>; the media set format behind §11.</li>
+      <li>ARINC Report 649 — check values and part numbering.</li>
+    </ul>
+
+    <h4>Primary source paths in this repository</h4>
+    <div class="tw">
+      <table>
+        <thead><tr><th class="m">Path</th><th>Contents</th></tr></thead>
+        <tbody>
+          <tr><td class="m">app/arinc_615a_operation/</td><td>CLI entry point, signal handling (§4)</td></tr>
+          <tr><td class="m">lib/arinc_615a_commands/</td><td>Nine command classes, option tables, console output (§5–§13)</td></tr>
+          <tr><td class="m">lib/arinc_615a/host/</td><td>Operation state machines (§9–§13)</td></tr>
+          <tr><td class="m">lib/arinc_615a/find/</td><td>FIND client, packets (§8)</td></tr>
+          <tr><td class="m">lib/arinc_615a/files/</td><td>Protocol file codecs (§14)</td></tr>
+          <tr><td class="m">lib/arinc_615a/tftp/</td><td>ARINC 615A TFTP specialisation (§15)</td></tr>
+          <tr><td class="m">lib/arinc_615a/information/</td><td>Status, part number, and target hardware value types</td></tr>
+          <tr><td class="m">doc/arinc_615a_manpage/</td><td>Per-command manpages — authoritative on options, not on the selection flag</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Method and limits</h4>
+    <p>This document was produced by static reading of the working copy. Line numbers reflect that tree. Nothing here was validated against a running target: no build was performed, no traffic was captured, and the behaviour of the three fetched dependencies — <code>commands</code>, <code>tftp</code>, and <code>arinc_665</code> — is described from their call sites in this repository, not from their own source. Where that mattered, notably the command selection flag in §5 and §21, it is called out rather than guessed.</p>
+  </div>
+</section>
+
+</main>
+</div>
